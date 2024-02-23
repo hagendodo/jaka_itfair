@@ -1,0 +1,18 @@
+{
+  "docId": "",
+  "orderId": "",
+  "mapData": [
+    {
+      "docId": "",
+      "timestamp": "",
+      "penjamuLoc": {
+        "lng": "",
+        "lat": ""
+      },
+      "userLoc": {
+        "lng": "",
+        "lat": ""
+      }
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "docId": "",
+  "orderId": "",
+  "chatData": [
+    {
+      "docId": "",
+      "timestamp": "",
+      "message": "",
+      "userId": "",
+      "penjamuId": null
+    },
+    {
+      "docId": "",
+      "timestamp": "",
+      "message": "",
+      "userId": null,
+      "penjamuId": ""
+    }
+  ]
+}
