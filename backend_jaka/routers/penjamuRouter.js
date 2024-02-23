@@ -12,7 +12,11 @@ const commonMiddleware = [
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-penjamuRouter.get("/", commonMiddleware, penjamuController.getAllPenjamu);
+penjamuRouter.get(
+  "/",
+  basicMiddleware.verifyAccount,
+  penjamuController.getAllPenjamu
+);
 penjamuRouter.get("/:id", commonMiddleware, penjamuController.getPenjamuById);
 penjamuRouter.post(
   "/",
