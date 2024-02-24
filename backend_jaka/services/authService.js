@@ -83,6 +83,46 @@ const login = async (x) => {
   }
 };
 
+const sendOtpToWhatsapp = async (otp) => {
+  const config = {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      messaging_product: "whatsapp",
+      preview_url: false,
+      recipient_type: "individual",
+      to: recipient,
+      type: "text",
+      text: {
+        body: `🔐 **Kode Verifikasi Anda: ${otp}**
+
+        Halo,\n\nSilakan gunakan kode verifikasi ini untuk menyelesaikan pendaftaran Anda:\n\n**[kode Anda]**
+        
+        Pastikan untuk tidak membagikan kode ini kepada siapa pun demi keamanan akun Anda. Jika Anda tidak meminta kode ini, silakan abaikan pesan ini.
+        
+        Terima kasih,\nJaka Corp.
+        `,
+      },
+    }),
+  };
+
+  const url = `https://graph.facebook.com/${process.env.VERSION}/${process.env.PHONE_NUMBER_ID}/messages`;
+
+  try {
+    const response = await fetch(url, config);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error:", error);
+    throw error;
+  }
+};
+
 const register = async (data, file = null) => {
   try {
     let err;
@@ -127,6 +167,10 @@ const register = async (data, file = null) => {
     }
 
     const { error } = err;
+
+    if (!error) {
+      sendOtpToWhatsapp();
+    }
 
     return error;
   } catch (err) {

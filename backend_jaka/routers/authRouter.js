@@ -10,11 +10,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 authRouter.post("/login", authController.login);
 authRouter.post("/register", authController.register);
-authRouter.post(
-  "/logout",
-  basicMiddleware.verifyAccount,
-  authController.logout
-);
+authRouter.post("/logout", authController.logout);
 authRouter.post("/verify-otp", authController.verifyOtp);
 authRouter.post("/upload-ktm", upload.single("ktm"), authController.uploadKtm);
 
