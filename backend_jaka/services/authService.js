@@ -84,6 +84,7 @@ const login = async (x) => {
 };
 
 const sendOtpToWhatsapp = async (otp) => {
+  console.log("HEREss");
   const config = {
     method: "POST",
     headers: {
@@ -110,12 +111,14 @@ const sendOtpToWhatsapp = async (otp) => {
   };
 
   const url = `https://graph.facebook.com/${process.env.VERSION}/${process.env.PHONE_NUMBER_ID}/messages`;
-
+  console.log("HERE1");
   try {
     const response = await fetch(url, config);
+    console.log("HERE2");
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
+    console.log("HERE3");
     return await response.json();
   } catch (error) {
     console.error("Error:", error);
@@ -169,10 +172,10 @@ const register = async (data, file = null) => {
     }
 
     const { error } = err;
-
-    if (!error) {
-      await sendOtpToWhatsapp(otp);
-    }
+    // if (!error) {
+    //   console.log("HERE0");
+    //   await sendOtpToWhatsapp(otp);
+    // }
 
     return error;
   } catch (err) {
