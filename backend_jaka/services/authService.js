@@ -329,7 +329,7 @@ const checkVerify = async (x) => {
     const { data, error } = await supabaseClient
       .from(`penjamus`)
       .select("is_verified")
-      .eq("id", x.id);
+      .eq("nim", x.nim);
 
     if (error) {
       return { error: error };

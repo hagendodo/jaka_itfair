@@ -157,8 +157,8 @@ const activate = async (req, res) => {
 
 const checkVerify = async (req, res) => {
   try {
-    if (!req.body.id) {
-      throw new Error("Id is not defined!");
+    if (!req.body.nim) {
+      throw new Error("NIM is not defined!");
     }
 
     const data = await authService.checkVerify(req.body);
