@@ -85,37 +85,40 @@ const login = async (x) => {
 };
 
 const sendOtpToWhatsapp = async (otp, recipient) => {
-  const config = {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      messaging_product: "whatsapp",
-      preview_url: false,
-      recipient_type: "individual",
-      to: recipient,
-      type: "text",
-      text: {
-        body: otp,
-      },
-    }),
+  const url = "https://api.fonnte.com/send";
+  const token = "6rCgYLQ_Ckdh3Pg@JyxM";
+  const data = {
+    target: recipient,
+    message: `🔐 Kode Verifikasi Anda
+
+    Halo,
+    
+    Silakan gunakan kode verifikasi ini untuk menyelesaikan pendaftaran Anda:
+    
+    ${otp}
+    
+    Pastikan untuk tidak membagikan kode ini kepada siapa pun demi keamanan akun Anda. Jika Anda tidak meminta kode ini, silakan abaikan pesan ini.
+    
+    Terima kasih,
+    Jaka Corp.
+    `,
+    countryCode: "62", // optional
   };
 
-  const url = `https://graph.facebook.com/${process.env.VERSION}/${process.env.PHONE_NUMBER_ID}/messages`;
-
   try {
-    const response = await fetch(url, config);
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token,
+      },
+      body: JSON.stringify(data),
+    });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    return await response.json();
+    const responseData = await response.json();
+    console.log(responseData);
   } catch (error) {
     console.error("Error:", error);
-    throw error;
   }
 };
 
@@ -166,23 +169,7 @@ const register = async (data, file = null) => {
 
     const { error } = err;
     if (!error) {
-      var y = messageHelper.getTextMessageInput(
-        data.phone,
-        "Welcome to the Movie Ticket Demo App for Node.js!"
-      );
-
-      messageHelper
-        .sendMessage(y)
-        .then(function (response) {
-          console.log(response.status);
-          return error;
-        })
-        .catch(function (error) {
-          console.log(error);
-          console.log(error.response.data);
-
-          return error;
-        });
+      await sendOtpToWhatsapp(otp, data.phone);
     }
 
     return error;
