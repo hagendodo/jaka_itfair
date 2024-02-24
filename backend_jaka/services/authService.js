@@ -97,9 +97,9 @@ const sendOtpToWhatsapp = async (otp) => {
       to: recipient,
       type: "text",
       text: {
-        body: `🔐 **Kode Verifikasi Anda: ${otp}**
+        body: `🔐 **Kode Verifikasi Anda**
 
-        Halo,\n\nSilakan gunakan kode verifikasi ini untuk menyelesaikan pendaftaran Anda:\n\n**[kode Anda]**
+        Halo,\n\nSilakan gunakan kode verifikasi ini untuk menyelesaikan pendaftaran Anda:\n\n**${otp}**
         
         Pastikan untuk tidak membagikan kode ini kepada siapa pun demi keamanan akun Anda. Jika Anda tidak meminta kode ini, silakan abaikan pesan ini.
         
@@ -132,6 +132,8 @@ const register = async (data, file = null) => {
       parseInt(process.env.SALT_ROUND_BCRYPT)
     );
 
+    const otp = randomInteger(100000, 999999);
+
     if (data.type === "user") {
       err = await supabaseClient.from("users").insert({
         name: data.name,
@@ -139,7 +141,7 @@ const register = async (data, file = null) => {
         phone: data.phone,
         email: data.email,
         password: hashedPassword,
-        otp: randomInteger(100000, 999999),
+        otp: otp,
       });
     }
 
@@ -150,7 +152,7 @@ const register = async (data, file = null) => {
         phone: data.phone,
         email: data.email,
         password: hashedPassword,
-        otp: randomInteger(100000, 999999),
+        otp: otp,
       });
     }
 
@@ -162,14 +164,14 @@ const register = async (data, file = null) => {
         address: data.address,
         lat: data.lat,
         lng: data.lng,
-        otp: randomInteger(100000, 999999),
+        otp: otp,
       });
     }
 
     const { error } = err;
 
     if (!error) {
-      sendOtpToWhatsapp();
+      await sendOtpToWhatsapp(otp);
     }
 
     return error;
