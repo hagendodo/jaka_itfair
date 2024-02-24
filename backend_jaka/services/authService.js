@@ -3,6 +3,7 @@ import { compare, hash } from "bcrypt";
 import * as dotenv from "dotenv";
 import randomInteger from "random-int";
 import uploadHelper from "../helper/uploadHelper.js";
+import messageHelper from "../helper/messageHelper.js";
 dotenv.config();
 
 const login = async (x) => {
@@ -83,8 +84,7 @@ const login = async (x) => {
   }
 };
 
-const sendOtpToWhatsapp = async (otp) => {
-  console.log("HEREss");
+const sendOtpToWhatsapp = async (otp, recipient) => {
   const config = {
     method: "POST",
     headers: {
@@ -98,27 +98,20 @@ const sendOtpToWhatsapp = async (otp) => {
       to: recipient,
       type: "text",
       text: {
-        body: `🔐 **Kode Verifikasi Anda**
-
-        Halo,\n\nSilakan gunakan kode verifikasi ini untuk menyelesaikan pendaftaran Anda:\n\n**${otp}**
-        
-        Pastikan untuk tidak membagikan kode ini kepada siapa pun demi keamanan akun Anda. Jika Anda tidak meminta kode ini, silakan abaikan pesan ini.
-        
-        Terima kasih,\nJaka Corp.
-        `,
+        body: otp,
       },
     }),
   };
 
   const url = `https://graph.facebook.com/${process.env.VERSION}/${process.env.PHONE_NUMBER_ID}/messages`;
-  console.log("HERE1");
+
   try {
     const response = await fetch(url, config);
-    console.log("HERE2");
+
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
-    console.log("HERE3");
+
     return await response.json();
   } catch (error) {
     console.error("Error:", error);
@@ -172,10 +165,25 @@ const register = async (data, file = null) => {
     }
 
     const { error } = err;
-    // if (!error) {
-    //   console.log("HERE0");
-    //   await sendOtpToWhatsapp(otp);
-    // }
+    if (!error) {
+      var y = messageHelper.getTextMessageInput(
+        data.phone,
+        "Welcome to the Movie Ticket Demo App for Node.js!"
+      );
+
+      messageHelper
+        .sendMessage(y)
+        .then(function (response) {
+          console.log(response.status);
+          return error;
+        })
+        .catch(function (error) {
+          console.log(error);
+          console.log(error.response.data);
+
+          return error;
+        });
+    }
 
     return error;
   } catch (err) {

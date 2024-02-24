@@ -30,7 +30,7 @@ const login = async (req, res) => {
 const register = async (req, res) => {
   try {
     const error = await authService.register(req.body);
-
+    console.log(error);
     if (error) {
       throw new Error("Failed Register, Server Problem");
     }
