@@ -166,11 +166,15 @@ const uploadKtm = async (file, data) => {
 
 const verifyOtp = async (x) => {
   try {
-    const { data, error } = await supabaseClient
-      .from(`${x.type}s`)
-      .select("otp")
-      .eq("nim", x.nim)
-      .neq("is_activated", true);
+    let query = supabaseClient.from(`${x.type}s`).select("otp");
+
+    if (x.type === "merchant") {
+      query = query.eq("phone", x.phone).neq("is_activated", true);
+    } else {
+      query = query.eq("nim", x.nim).neq("is_activated", true);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       return { error: error };
