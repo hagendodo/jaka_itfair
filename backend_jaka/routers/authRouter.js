@@ -18,4 +18,10 @@ authRouter.post(
 authRouter.post("/verify-otp", authController.verifyOtp);
 authRouter.post("/upload-ktm", upload.single("ktm"), authController.uploadKtm);
 
+// Token Login Needed
+authRouter.post("/accept/:id", commonMiddleware, authController.accept);
+authRouter.post("/decline/:id", commonMiddleware, authController.decline);
+authRouter.post("/deactivate/:id", commonMiddleware, authController.deactivate);
+authRouter.post("/activate/:id", commonMiddleware, authController.activate);
+
 export { authRouter };

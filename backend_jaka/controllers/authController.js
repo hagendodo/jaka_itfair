@@ -95,10 +95,74 @@ const verifyOtp = async (req, res) => {
   }
 };
 
+const accept = async (req, res) => {
+  try {
+    if (!req.body.type) {
+      throw new Error("Type is not defined!");
+    }
+
+    await authService.accept(req.params.id, req.body);
+    return res
+      .status(200)
+      .send(responseType("Successfully accept account", null, false));
+  } catch (err) {
+    return res.status(400).send(responseType(err.message, null, true));
+  }
+};
+
+const decline = async (req, res) => {
+  try {
+    if (!req.body.type) {
+      throw new Error("Type is not defined!");
+    }
+
+    await authService.decline(req.params.id, req.body);
+    return res
+      .status(200)
+      .send(responseType("Successfully decline account", null, false));
+  } catch (err) {
+    return res.status(400).send(responseType(err.message, null, true));
+  }
+};
+
+const deactivate = async (req, res) => {
+  try {
+    if (!req.body.type) {
+      throw new Error("Type is not defined!");
+    }
+
+    await authService.deactivate(req.params.id, req.body);
+    return res
+      .status(200)
+      .send(responseType("Successfully deactive account", null, false));
+  } catch (err) {
+    return res.status(400).send(responseType(err.message, null, true));
+  }
+};
+
+const activate = async (req, res) => {
+  try {
+    if (!req.body.type) {
+      throw new Error("Type is not defined!");
+    }
+
+    await authService.activate(req.params.id, req.body);
+    return res
+      .status(200)
+      .send(responseType("Successfully activate account", null, false));
+  } catch (err) {
+    return res.status(400).send(responseType(err.message, null, true));
+  }
+};
+
 export default {
   login,
   register,
   logout,
   uploadKtm,
   verifyOtp,
+  accept,
+  decline,
+  deactivate,
+  activate,
 };

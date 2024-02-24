@@ -9,7 +9,16 @@ const commonMiddleware = [
   basicMiddleware.isAccountActivated,
 ];
 
-merchantRouter.get("/", commonMiddleware, merchantController.getAllMerchant);
+merchantRouter.get(
+  "/",
+  basicMiddleware.verifyAccount,
+  merchantController.getAllMerchant
+);
+merchantRouter.get(
+  "/ratings",
+  commonMiddleware,
+  merchantController.getAllMerchantWithRating
+);
 merchantRouter.get(
   "/:id",
   commonMiddleware,

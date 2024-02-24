@@ -203,10 +203,74 @@ const verifyOtp = async (x) => {
   }
 };
 
+const accept = async (id, data) => {
+  try {
+    const { error } = await supabaseClient
+      .from(`${data.type}s`)
+      .update({
+        is_verified: true,
+      })
+      .eq("id", id);
+
+    return error;
+  } catch (err) {
+    return err;
+  }
+};
+
+const decline = async (id, data) => {
+  try {
+    const { error } = await supabaseClient
+      .from(`${data.type}s`)
+      .update({
+        is_verified: false,
+      })
+      .eq("id", id);
+
+    return error;
+  } catch (err) {
+    return err;
+  }
+};
+
+const deactivate = async (id, data) => {
+  try {
+    const { error } = await supabaseClient
+      .from(`${data.type}s`)
+      .update({
+        is_activated: false,
+      })
+      .eq("id", id);
+
+    return error;
+  } catch (err) {
+    return err;
+  }
+};
+
+const activate = async (id, data) => {
+  try {
+    const { error } = await supabaseClient
+      .from(`${data.type}s`)
+      .update({
+        is_activated: true,
+      })
+      .eq("id", id);
+
+    return error;
+  } catch (err) {
+    return err;
+  }
+};
+
 export default {
   login,
   register,
   logout,
   uploadKtm,
   verifyOtp,
+  accept,
+  decline,
+  deactivate,
+  activate,
 };

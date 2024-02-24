@@ -1,6 +1,14 @@
 import { supabaseClient } from "../models/supabaseClient.js";
 
-const getAllMerchant = async (queryString) => {
+const getAllMerchant = async () => {
+  try {
+    return await supabaseClient.from("merchants").select();
+  } catch (err) {
+    return err;
+  }
+};
+
+const getAllMerchantWithRating = async (queryString) => {
   try {
     const limit = queryString.limit ?? 5;
     return await supabaseClient
@@ -69,6 +77,7 @@ const deleteMerchant = async (id) => {
 
 export default {
   getAllMerchant,
+  getAllMerchantWithRating,
   getMerchantById,
   createMerchant,
   updateMerchant,

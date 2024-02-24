@@ -3,7 +3,25 @@ import { responseType } from "../types/responseType.js";
 
 const getAllMerchant = async (req, res) => {
   try {
-    const { data, error } = await merchantService.getAllMerchant(req.query);
+    const { data, error } = await merchantService.getAllMerchant();
+
+    if (error) {
+      throw new Error(error);
+    }
+
+    return res
+      .status(200)
+      .send(responseType("Retrieve all merhcant", data, false));
+  } catch (err) {
+    return res.status(400).send(responseType(err.message, null, true));
+  }
+};
+
+const getAllMerchantWithRating = async (req, res) => {
+  try {
+    const { data, error } = await merchantService.getAllMerchantWithRating(
+      req.query
+    );
 
     if (error) {
       throw new Error(error);
@@ -67,6 +85,7 @@ const deleteMerchant = async (req, res) => {
 
 export default {
   getAllMerchant,
+  getAllMerchantWithRating,
   getMerchantById,
   createMerchant,
   updateMerchant,

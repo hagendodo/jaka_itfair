@@ -11,18 +11,43 @@ const chooseAllActivePenjamu = async () => {
   return currentMapList;
 };
 
-const getAllOrderById = async (id, data) => {
+const getAllHistoryOrder = async (queryString) => {
   try {
-    let queryBuilder = supabaseClient.from("history_orders_view").select();
-
-    if (queryString) {
-      queryBuilder.eq("merchant_id", queryString.merchant_id);
+    if (!queryString.type) {
+      throw new Error("Please add type (penjamu, merchant, user)");
     }
+
+    let queryBuilder = supabaseClient
+      .from("history_orders_view")
+      .select()
+      .eq(`${queryString.type}_id`, queryString.id);
 
     return await queryBuilder;
   } catch (err) {
     return err;
   }
+};
+
+const getHistoryOrderById = async (id) => {
+  try {
+    let queryBuilder = supabaseClient
+      .from("history_orders_view")
+      .select()
+      .eq("id", id);
+
+    return await queryBuilder;
+  } catch (err) {
+    return err;
+  }
+};
+
+const createOrder = async (x) => {
+  const penjamus = chooseAllActivePenjamu();
+
+  const { data, error } = supabaseClient
+    .from("penjamu_activites")
+    .select("status")
+    .eq("id", penjamus[0].id);
 };
 
 /*
@@ -36,3 +61,8 @@ const getAllOrderById = async (id, data) => {
  6. 
 
 */
+
+export default {
+  getAllHistoryOrder,
+  getHistoryOrderById,
+};
