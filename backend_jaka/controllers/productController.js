@@ -6,7 +6,7 @@ const getAllProduct = async (req, res) => {
     const { data, error } = await productService.getAllproduct(req.query);
 
     if (error) {
-      throw new Error(error);
+      throw new Error(error.message);
     }
 
     return res

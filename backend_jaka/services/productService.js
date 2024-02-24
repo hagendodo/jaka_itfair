@@ -5,7 +5,7 @@ const getAllproduct = async (queryString = null) => {
   try {
     let queryBuilder = supabaseClient.from("products").select();
 
-    if (queryString) {
+    if (queryString.merchant_id) {
       queryBuilder.eq("merchant_id", queryString.merchant_id);
     }
 
