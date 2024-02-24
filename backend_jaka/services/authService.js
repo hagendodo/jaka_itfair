@@ -324,6 +324,29 @@ const activate = async (id, data) => {
   }
 };
 
+const checkVerify = async (x) => {
+  try {
+    const { data, error } = await supabaseClient
+      .from(`penjamus`)
+      .select("is_verified")
+      .eq("id", x.id);
+
+    if (error) {
+      return { error: error };
+    }
+
+    if (!data || data.length === 0) {
+      return null;
+    }
+
+    const user = data[0];
+
+    return user;
+  } catch (err) {
+    return err;
+  }
+};
+
 export default {
   login,
   register,
@@ -334,4 +357,5 @@ export default {
   decline,
   deactivate,
   activate,
+  checkVerify,
 };

@@ -155,6 +155,19 @@ const activate = async (req, res) => {
   }
 };
 
+const checkVerify = async (req, res) => {
+  try {
+    if (!req.body.id) {
+      throw new Error("Id is not defined!");
+    }
+
+    const data = await authService.checkVerify(req.body);
+    return res.status(200).send(responseType("Success checked", data, false));
+  } catch (err) {
+    return res.status(400).send(responseType(err.message, null, true));
+  }
+};
+
 export default {
   login,
   register,
@@ -165,4 +178,5 @@ export default {
   decline,
   deactivate,
   activate,
+  checkVerify,
 };

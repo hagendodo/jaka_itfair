@@ -13,6 +13,7 @@ authRouter.post("/login", authController.login);
 authRouter.post("/logout", authController.logout);
 authRouter.post("/verify-otp", authController.verifyOtp);
 authRouter.post("/upload-ktm", upload.single("ktm"), authController.uploadKtm);
+authRouter.post("/check-verify", authController.checkVerify);
 
 // Token Login Needed
 authRouter.post("/accept/:id", commonMiddleware, authController.accept);
