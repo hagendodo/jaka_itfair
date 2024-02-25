@@ -1,5 +1,6 @@
 import { firebaseClient } from "../models/firebaseClient.js";
 import { getFirestore, collection, getDocs } from "firebase/firestore/lite";
+import { supabaseClient } from "../models/supabaseClient.js";
 
 const client = firebaseClient();
 const db = getFirestore(client);
@@ -24,7 +25,7 @@ const calculateDistance = (point1, point2) => {
   return R * 2 * Math.asin(Math.sqrt(a)); // Distance in km
 };
 
-const chooseAllActivePenjamu = async (myLocation) => {
+const pairingPenjamuWithOrder = async (myLocation, orderId) => {
   const currentMapsCollection = collection(db, "current_maps");
   const currentMapSnapshot = await getDocs(currentMapsCollection);
   const currentMapList = currentMapSnapshot.docs.map((doc) => ({
@@ -44,25 +45,46 @@ const chooseAllActivePenjamu = async (myLocation) => {
   // Sort the list based on distance
   mapListWithDistances.sort((a, b) => a.distance - b.distance);
 
-  // Get the nearest location
-  const nearestLocation = mapListWithDistances[0];
+  let nearestLocation;
+  let nearestLocationIndex = 0;
 
-  // Use transaction to delete the nearest location and insert it into a new collection
-  const nearestLocationRef = doc(db, "current_maps", nearestLocation.id);
-  const newCollectionRef = collection(db, "temporary_orders");
+  while (
+    !nearestLocation &&
+    nearestLocationIndex < mapListWithDistances.length
+  ) {
+    // Get the nearest location
+    nearestLocation = mapListWithDistances[nearestLocationIndex];
 
-  await runTransaction(db, async (transaction) => {
-    // Delete the nearest location
-    transaction.delete(nearestLocationRef);
+    // Use transaction to delete the nearest location and insert it into a new collection
+    const nearestLocationRef = doc(db, "current_maps", nearestLocation.id);
+    const newCollectionRef = collection(db, "temporary_orders");
 
-    // Insert the nearest location into a new collection
-    transaction.set(newCollectionRef.doc(nearestLocation.id), nearestLocation);
-  });
+    try {
+      await runTransaction(db, async (transaction) => {
+        // Delete the nearest location
+        transaction.delete(nearestLocationRef);
 
-  // Remove the nearest location from the list
-  mapListWithDistances.shift();
+        // Insert the nearest location into a new collection
+        transaction.set(newCollectionRef.doc(nearestLocation.id), {
+          orderId: orderId,
+          penjamuId: nearestLocation.id,
+        });
+      });
+    } catch (error) {
+      console.error("Transaction failed:", error);
+      // If transaction fails, rollback and move to the next nearest location
+      nearestLocation = null;
+      nearestLocationIndex++;
+    }
+  }
 
-  return mapListWithDistances;
+  if (nearestLocation) {
+    // Return the id of the nearest location
+    return nearestLocation.id;
+  } else {
+    // If no location is found, return null or throw an error
+    return null;
+  }
 };
 
 const getAllHistoryOrder = async (queryString) => {
@@ -96,12 +118,52 @@ const getHistoryOrderById = async (id) => {
 };
 
 const createOrder = async (x) => {
-  const penjamus = chooseAllActivePenjamu();
+  const order = await supabaseClient
+    .from("orders")
+    .insert({
+      user_id: x.user_id,
+    })
+    .select();
 
-  const { data, error } = supabaseClient
-    .from("penjamu_activites")
-    .select("status")
-    .eq("id", penjamus[0].id);
+  const orderData = order[0];
+
+  x.products.forEach(async (element) => {
+    const { error } = await supabaseClient.from("detail_orders").insert({
+      order_id: orderData.id,
+      product_id: element.product_id,
+      price: element.price,
+      quantity: element.quantity,
+    });
+
+    if (error) {
+      console.log(error);
+      throw new Error("Insert ke detail_orders nya gagal");
+    }
+  });
+
+  const penjamuId = pairingPenjamuWithOrder(
+    {
+      lat: x.lat,
+      lng: x.lng,
+    },
+    orderData.id
+  );
+
+  if (penjamuId === null) {
+    return {
+      data: null,
+      error: "Tidak ada penjamu aktif saat ini",
+    };
+  }
+
+  return {
+    data: {
+      order_id: orderData.id,
+      penjamu: penjamuId,
+      products: x.products,
+    },
+    error: null,
+  };
 };
 
 /*

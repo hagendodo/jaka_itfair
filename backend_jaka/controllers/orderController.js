@@ -43,7 +43,7 @@ const createOrder = async (req, res) => {
     const { data, error } = await orderService.createOrder(req.body);
 
     if (error) {
-      throw error;
+      throw new Error(error);
     }
     return res
       .status(200)
