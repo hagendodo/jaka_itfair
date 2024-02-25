@@ -36,7 +36,7 @@ const login = async (x) => {
 
     let data, error;
     if (x.type === "merchant" || x.type === "penjamu") {
-      ({ data, error } = await queryBuilder.eq("phone", x.phone));
+      ({ data, error } = await queryBuilder.eq("phone", x.phone.toString()));
     } else {
       ({ data, error } = await queryBuilder.eq("email", x.email));
     }
