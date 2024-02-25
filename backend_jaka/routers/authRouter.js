@@ -9,7 +9,7 @@ const commonMiddleware = [basicMiddleware.verifyAccount];
 const upload = multer({ storage: multer.memoryStorage() });
 
 authRouter.post("/login", authController.login);
-//authRouter.post("/register", authController.register);
+authRouter.post("/register", authController.register);
 authRouter.post("/logout", authController.logout);
 authRouter.post("/verify-otp", authController.verifyOtp);
 authRouter.post("/upload-ktm", upload.single("ktm"), authController.uploadKtm);
@@ -21,5 +21,5 @@ authRouter.post("/decline/:id", commonMiddleware, authController.decline);
 authRouter.post("/deactivate/:id", commonMiddleware, authController.deactivate);
 authRouter.post("/activate/:id", commonMiddleware, authController.activate);
 
-authRouter.post("/register", authController.register);
+//authRouter.post("/register", authController.register);
 export { authRouter };

@@ -17,6 +17,8 @@
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "firebase": "^9.16.0",
+    "firebase-admin": "^12.0.0",
+    "firebase-functions": "^4.7.0",
     "lodash": "^4.17.21",
     "multer": "^1.4.5-lts.1",
     "random-int": "^3.0.0",

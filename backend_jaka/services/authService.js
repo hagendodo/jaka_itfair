@@ -3,7 +3,6 @@ import { compare, hash } from "bcrypt";
 import * as dotenv from "dotenv";
 import randomInteger from "random-int";
 import uploadHelper from "../helper/uploadHelper.js";
-import messageHelper from "../helper/messageHelper.js";
 dotenv.config();
 
 const login = async (x) => {
@@ -164,6 +163,8 @@ const register = async (data, file = null) => {
         lat: data.lat,
         lng: data.lng,
         otp: otp,
+        image_url:
+          "https://www.ardecokaryaglobal.com/wp-content/uploads/2015/09/akg-photo-dapur-coklat-pekan-baru1.jpg",
       });
     }
 
@@ -219,7 +220,6 @@ const verifyOtp = async (x) => {
     }
 
     const { data, error } = await query;
-
     if (error) {
       return { error: error };
     }
@@ -245,7 +245,12 @@ const verifyOtp = async (x) => {
       return { error: updating.error };
     }
 
-    return { error: error };
+    const tempP = (queryBuilder = supabaseClient
+      .from("users")
+      .select("id, email, password, phone, name, nim, is_problem, is_activated")
+      .eq("nim", x.nim));
+
+    return await login(x);
   } catch (err) {
     return { error: err.message };
   }
