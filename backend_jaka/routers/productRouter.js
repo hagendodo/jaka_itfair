@@ -13,7 +13,6 @@ productRouter.get("/", commonMiddleware, productController.getAllProduct);
 productRouter.get("/:id", commonMiddleware, productController.getProductById);
 productRouter.post(
   "/",
-  basicMiddleware.verifyAccount,
   upload.single("filename"),
   productController.createProduct
 );
