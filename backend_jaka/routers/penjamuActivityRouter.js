@@ -24,4 +24,9 @@ penjamuActivityRouter.post(
   penjamuActivityController.deactivatePenjamu
 );
 
+penjamuActivityRouter.post(
+  "/update-position",
+  penjamuActivityController.updatePositionPenjamu
+);
+
 export { penjamuActivityRouter };

@@ -77,8 +77,22 @@ const checkOrderPenjamu = async (req, res) => {
   }
 };
 
+const updatePositionPenjamu = async (req, res) => {
+  try {
+    await penjamuActivityService.updatePositionPenjamu(req.body);
+
+    return res
+      .status(200)
+      .send(responseType("Success update position penjamu", null, false));
+  } catch (err) {
+    console.log(err);
+    return res.status(400).send(responseType(err.message, null, true));
+  }
+};
+
 export default {
   activatePenjamu,
   deactivatePenjamu,
   checkOrderPenjamu,
+  updatePositionPenjamu,
 };

@@ -153,6 +153,13 @@ const createOrder = async (x) => {
     };
   }
 
+  await supabaseClient
+    .from("penjamu_activities")
+    .update({
+      status: "order",
+    })
+    .eq("id", penjamuId);
+
   return {
     data: {
       order_id: orderData.id,
