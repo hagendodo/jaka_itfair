@@ -46,13 +46,13 @@ const createCart = async (data) => {
     }
 
     let queryBuilder = supabaseClient.from("carts");
-
-    if (!cartExist || cartExist.data.length === 0) {
+    console.log(cartExist);
+    if (cartExist.data.length === 0) {
       await queryBuilder.insert({
         user_id: data.user_id,
         merchant_id: data.merchant_id,
         product_id: data.product_id,
-        quantity: data.quantity,
+        quantity: 1,
       });
     } else {
       await queryBuilder

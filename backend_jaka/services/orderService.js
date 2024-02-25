@@ -4,11 +4,65 @@ import { getFirestore, collection, getDocs } from "firebase/firestore/lite";
 const client = firebaseClient();
 const db = getFirestore(client);
 
-const chooseAllActivePenjamu = async () => {
+const calculateDistance = (point1, point2) => {
+  const lat1 = point1.lat;
+  const lon1 = point1.lng;
+  const lat2 = point2.lat;
+  const lon2 = point2.lng;
+
+  const R = 6371; // Radius of the earth in km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180; // deg2rad below
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    0.5 -
+    Math.cos(dLat) / 2 +
+    (Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      (1 - Math.cos(dLon))) /
+      2;
+
+  return R * 2 * Math.asin(Math.sqrt(a)); // Distance in km
+};
+
+const chooseAllActivePenjamu = async (myLocation) => {
   const currentMapsCollection = collection(db, "current_maps");
   const currentMapSnapshot = await getDocs(currentMapsCollection);
-  const currentMapList = currentMapSnapshot.docs.map((doc) => doc.data());
-  return currentMapList;
+  const currentMapList = currentMapSnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+
+  // Calculate distances and add them to the objects
+  const mapListWithDistances = currentMapList.map((map) => {
+    const distance = calculateDistance(myLocation, {
+      lat: map.lat,
+      lng: map.lng,
+    });
+    return { ...map, distance };
+  });
+
+  // Sort the list based on distance
+  mapListWithDistances.sort((a, b) => a.distance - b.distance);
+
+  // Get the nearest location
+  const nearestLocation = mapListWithDistances[0];
+
+  // Use transaction to delete the nearest location and insert it into a new collection
+  const nearestLocationRef = doc(db, "current_maps", nearestLocation.id);
+  const newCollectionRef = collection(db, "temporary_orders");
+
+  await runTransaction(db, async (transaction) => {
+    // Delete the nearest location
+    transaction.delete(nearestLocationRef);
+
+    // Insert the nearest location into a new collection
+    transaction.set(newCollectionRef.doc(nearestLocation.id), nearestLocation);
+  });
+
+  // Remove the nearest location from the list
+  mapListWithDistances.shift();
+
+  return mapListWithDistances;
 };
 
 const getAllHistoryOrder = async (queryString) => {
@@ -65,4 +119,5 @@ const createOrder = async (x) => {
 export default {
   getAllHistoryOrder,
   getHistoryOrderById,
+  createOrder,
 };

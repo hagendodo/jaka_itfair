@@ -11,5 +11,6 @@ const commonMiddleware = [
 
 orderRouter.get("/", commonMiddleware, orderController.getAllHistoryOrder);
 orderRouter.get("/:id", commonMiddleware, orderController.getAllHistoryOrder);
+orderRouter.post("/", commonMiddleware, orderController.createOrder);
 
 export { orderRouter };

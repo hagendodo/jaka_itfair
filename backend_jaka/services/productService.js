@@ -29,7 +29,7 @@ const createProduct = async (file, data) => {
       const image = await uploadHelper.uploadImage(file);
 
       const { error } = await supabaseClient.from("products").insert({
-        merhcant_id: data.merchantId,
+        merchant_id: data.merchant_id,
         name: data.name,
         price: data.price,
         description: data.description,
