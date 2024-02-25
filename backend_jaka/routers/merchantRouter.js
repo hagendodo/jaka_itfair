@@ -4,10 +4,7 @@ import basicMiddleware from "../middlewares/verifyAccountMiddleware.js";
 
 const merchantRouter = Router();
 
-const commonMiddleware = [
-  basicMiddleware.verifyAccount,
-  basicMiddleware.isAccountActivated,
-];
+const commonMiddleware = [basicMiddleware.verifyAccount];
 
 merchantRouter.get(
   "/",
