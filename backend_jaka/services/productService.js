@@ -36,8 +36,6 @@ const createProduct = async (file, data) => {
         image: image.url,
       });
 
-      console.log(error);
-
       return error;
     } catch (err) {
       return err;

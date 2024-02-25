@@ -38,7 +38,11 @@ const getProductById = async (req, res) => {
 
 const createProduct = async (req, res) => {
   try {
-    await productService.createProduct(req.file, req.body);
+    const error = await productService.createProduct(req.file, req.body);
+
+    if (error) {
+      throw new Error(error);
+    }
     return res
       .status(200)
       .send(responseType("Successfully create product", null, false));
