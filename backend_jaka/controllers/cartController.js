@@ -3,7 +3,7 @@ import { responseType } from "../types/responseType.js";
 
 const getAllCart = async (req, res) => {
   try {
-    if (!queryString || !queryString.user_id || !queryString.merchant_id) {
+    if (!req.query.user_id) {
       throw new Error("Please add query string user_id and merchant_id");
     }
 

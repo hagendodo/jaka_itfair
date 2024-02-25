@@ -2,23 +2,42 @@ import { supabaseClient } from "../models/supabaseClient.js";
 
 const getAllCart = async (queryString = null) => {
   try {
-    if (!queryString || !queryString.user_id || !queryString.merchant_id) {
+    if (!queryString.user_id) {
       return {
         data: null,
         error: {
-          message: "Please add query string user id and merchant id!",
+          message: "Please add query string user id",
         },
       };
     }
 
     const userId = queryString.user_id;
-    const merchantId = queryString.merchant_id;
 
-    return await supabaseClient
+    const { data, error } = await supabaseClient
       .from("carts")
-      .select()
-      .eq("user_id", userId)
-      .eq("merchant_id", merchantId);
+      .select("merchants (id, name), products (id, name, price), quantity")
+      .eq("user_id", userId);
+
+    const transformedData = data.reduce((acc, curr) => {
+      const existingMerchant = acc.find(
+        (item) => item.merchants.id === curr.merchants.id
+      );
+      if (existingMerchant) {
+        existingMerchant.products.push(curr.products);
+      } else {
+        acc.push({
+          quantity: curr.quantity,
+          merchants: curr.merchants,
+          products: [curr.products],
+        });
+      }
+      return acc;
+    }, []);
+
+    return {
+      data: transformedData,
+      error: null,
+    };
   } catch (err) {
     return err;
   }
