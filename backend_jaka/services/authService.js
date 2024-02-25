@@ -214,7 +214,7 @@ const verifyOtp = async (x) => {
     let query = supabaseClient.from(`${x.type}s`).select("otp");
 
     if (x.type === "merchant") {
-      query = query.eq("phone", x.phone).neq("is_activated", true);
+      query = query.eq("phone", x.phone);
     } else {
       query = query.eq("nim", x.nim).neq("is_activated", true);
     }
@@ -234,23 +234,38 @@ const verifyOtp = async (x) => {
       throw new Error("OTP is not correct!");
     }
 
-    const updating = await supabaseClient
-      .from(`${x.type}s`)
-      .update({
-        is_activated: true,
-      })
-      .eq("nim", x.nim);
+    // let updatingBuilder = supabaseClient.from(`${x.type}s`).update({
+    //   is_activated: true,
+    // });
 
-    if (updating.error) {
-      return { error: updating.error };
-    }
+    // if (x.type === "merchant") {
+    //   updatingBuilder = query.eq("phone", x.phone);
+    // } else {
+    //   updatingBuilder = query.eq("nim", x.nim);
+    // }
 
-    const tempP = (queryBuilder = supabaseClient
-      .from("users")
-      .select("id, email, password, phone, name, nim, is_problem, is_activated")
-      .eq("nim", x.nim));
+    // const updating = await updatingBuilder;
 
-    return await login(x);
+    // if (updating.error) {
+    //   return { error: updating.error };
+    // }
+
+    // let accountBuilder = supabaseClient.from(`${x.type}s`).select();
+
+    // if (x.type === "merchant") {
+    //   accountBuilder = query.eq("phone", x.phone);
+    // } else {
+    //   accountBuilder = query.eq("nim", x.nim);
+    // }
+
+    // const account = await accountBuilder;
+    // console.log(account);
+    // const datAcun = account.data[0];
+    // datAcun.type = x.type;
+
+    return { error: error };
+
+    return await login(datAcun);
   } catch (err) {
     return { error: err.message };
   }
