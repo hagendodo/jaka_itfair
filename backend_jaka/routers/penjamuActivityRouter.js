@@ -14,6 +14,11 @@ penjamuActivityRouter.post(
   penjamuActivityController.activatePenjamu
 );
 
+penjamuActivityRouter.get(
+  "/check-order/:id",
+  penjamuActivityController.checkOrderPenjamu
+);
+
 penjamuActivityRouter.post(
   "/deactivate/:id",
   penjamuActivityController.deactivatePenjamu

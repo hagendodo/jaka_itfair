@@ -18,7 +18,16 @@ const deactivatePenjamu = async (data) => {
     .upsert({ id: data.id, status: null, updated_at: updatedAt });
 };
 
+const checkOrderPenjamu = async (data) => {
+  return supabaseClient
+    .from("penjamu_activities")
+    .select("status")
+    .eq("id", data.id)
+    .single();
+};
+
 export default {
   activatePenjamu,
   deactivatePenjamu,
+  checkOrderPenjamu,
 };

@@ -55,7 +55,30 @@ const deactivatePenjamu = async (req, res) => {
   }
 };
 
+const checkOrderPenjamu = async (req, res) => {
+  try {
+    if (!req.params) {
+      throw new Error("Please add id penjamu");
+    }
+
+    const { data, error } = await penjamuActivityService.checkOrderPenjamu(
+      req.params
+    );
+
+    if (error) {
+      throw new Error(error);
+    }
+
+    return res
+      .status(200)
+      .send(responseType("Data penjamu found", data, false));
+  } catch (err) {
+    return res.status(400).send(responseType(err.message, null, true));
+  }
+};
+
 export default {
   activatePenjamu,
   deactivatePenjamu,
+  checkOrderPenjamu,
 };
