@@ -5,10 +5,7 @@ import basicMiddleware from "../middlewares/verifyAccountMiddleware.js";
 
 const cartRouter = Router();
 
-const commonMiddleware = [
-  basicMiddleware.verifyAccount,
-  basicMiddleware.isAccountActivated,
-];
+const commonMiddleware = [basicMiddleware.verifyAccount];
 
 cartRouter.get("/", commonMiddleware, cartController.getAllCart);
 cartRouter.get("/:id", commonMiddleware, cartController.getCartById);
