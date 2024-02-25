@@ -46,7 +46,7 @@ const createCart = async (data) => {
     }
 
     let queryBuilder = supabaseClient.from("carts");
-    console.log(cartExist);
+
     if (cartExist.data.length === 0) {
       await queryBuilder.insert({
         user_id: data.user_id,
@@ -57,7 +57,7 @@ const createCart = async (data) => {
     } else {
       await queryBuilder
         .update({
-          quantity: cartExist.data[0].quantity + data.quantity,
+          quantity: cartExist.data[0].quantity + 1,
         })
         .eq("id", cartExist.data[0].id);
     }
