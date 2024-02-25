@@ -9,8 +9,8 @@ const commonMiddleware = [
   basicMiddleware.isAccountActivated,
 ];
 
-orderRouter.get("/", commonMiddleware, orderController.getAllHistoryOrder);
-orderRouter.get("/:id", commonMiddleware, orderController.getAllHistoryOrder);
-orderRouter.post("/", commonMiddleware, orderController.createOrder);
+orderRouter.get("/", orderController.getAllHistoryOrder);
+orderRouter.get("/:id", orderController.getAllHistoryOrder);
+orderRouter.post("/", orderController.createOrder);
 
 export { orderRouter };

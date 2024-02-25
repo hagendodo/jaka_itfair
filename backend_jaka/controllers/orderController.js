@@ -3,7 +3,7 @@ import { responseType } from "../types/responseType.js";
 
 const getAllHistoryOrder = async (req, res) => {
   try {
-    if (!req.query || !req.query.type || !req.query.id) {
+    if (!req.query.type || !req.query.id) {
       throw new Error("Pelase add query string type and id");
     }
 
@@ -23,8 +23,13 @@ const getAllHistoryOrder = async (req, res) => {
 
 const getHistoryOrderById = async (req, res) => {
   try {
+    if (!req.query.type || !req.query.id) {
+      throw new Error("Pelase add query string type and id");
+    }
+
     const { data, error } = await orderService.getHistoryOrderById(
-      req.params.id
+      req.params.id,
+      req.query
     );
 
     if (error) {

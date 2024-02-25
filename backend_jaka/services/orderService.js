@@ -89,29 +89,26 @@ const pairingPenjamuWithOrder = async (myLocation, orderId) => {
 
 const getAllHistoryOrder = async (queryString) => {
   try {
-    if (!queryString.type) {
-      throw new Error("Please add type (penjamu, merchant, user)");
-    }
-
-    let queryBuilder = supabaseClient
-      .from("history_orders_view")
-      .select()
+    return await supabaseClient
+      .from("orders")
+      .select(
+        "id, address, total, notes, created_at, penjamus (id, name), users (id, name), detail_orders(products(id, name, image), price)"
+      )
       .eq(`${queryString.type}_id`, queryString.id);
-
-    return await queryBuilder;
   } catch (err) {
     return err;
   }
 };
 
-const getHistoryOrderById = async (id) => {
+const getHistoryOrderById = async (id, queryString) => {
   try {
-    let queryBuilder = supabaseClient
-      .from("history_orders_view")
-      .select()
+    return await supabaseClient
+      .from("orders")
+      .select(
+        "id, address, total, notes, created_at, penjamus (id, name), users (id, name), detail_orders(products(id, name, image), price)"
+      )
+      .eq(`${queryString.type}_id`, queryString.id)
       .eq("id", id);
-
-    return await queryBuilder;
   } catch (err) {
     return err;
   }
