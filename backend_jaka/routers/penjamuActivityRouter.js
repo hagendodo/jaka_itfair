@@ -11,13 +11,11 @@ const commonMiddleware = [
 
 penjamuActivityRouter.post(
   "/activate/:id",
-  commonMiddleware,
   penjamuActivityController.activatePenjamu
 );
 
 penjamuActivityRouter.post(
   "/deactivate/:id",
-  commonMiddleware,
   penjamuActivityController.deactivatePenjamu
 );
 
