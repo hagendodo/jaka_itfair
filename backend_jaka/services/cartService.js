@@ -16,7 +16,7 @@ const getAllCart = async (queryString = null) => {
     const { data, error } = await supabaseClient
       .from("carts")
       .select(
-        "merchants (id, name), products (id, name, price, image), quantity"
+        "id, merchants (id, name), products (id, name, price, image), quantity"
       )
       .eq("user_id", userId);
 
@@ -25,10 +25,12 @@ const getAllCart = async (queryString = null) => {
         (item) => item.merchants.id === curr.merchants.id
       );
       if (existingMerchant) {
+        curr.products.cart_id = curr.id;
         curr.products.quantity = curr.quantity;
         existingMerchant.products.push(curr.products);
       } else {
         curr.products.quantity = curr.quantity;
+        curr.products.cart_id = curr.id;
         acc.push({
           merchants: curr.merchants,
           products: [curr.products],
