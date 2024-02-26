@@ -1,84 +1,100 @@
-import { View, Text, StyleSheet, Dimensions, ImageBackground, Image, TouchableOpacity, KeyboardAvoidingView, ScrollView, ActivityIndicator } from 'react-native'
-import React, { useState } from 'react';
+/* eslint-disable react-native/no-inline-styles */
+import { View, Text, StyleSheet, Dimensions, Image, TouchableOpacity, KeyboardAvoidingView, ScrollView, ActivityIndicator } from 'react-native';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import Colors from '../Constants/Colors';
 import Fonts from '../Constants/Fonts';
 import { useNavigation } from '@react-navigation/native';
 import { TextInput } from 'react-native-element-textinput';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ALERT_TYPE, Dialog, AlertNotificationRoot, Toast } from 'react-native-alert-notification';
+import { ALERT_TYPE, Dialog, AlertNotificationRoot } from 'react-native-alert-notification';
+import BottomSheet from '@gorhom/bottom-sheet';
+import ShowMaps from '../Components/ShowMaps';
 
-const RegisterScreen = () => {
+const DetailOrder = () => {
     const [name, setName] = useState('');
-    const [nim, setNim] = useState('');
-    const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
+    const [address, setAddress] = useState('');
+    const [lat, setLat] = useState(null);
+    const [lng, setLng] = useState(null);
+
     const [isLoading, setIsLoading] = useState(false);
+    const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false); // New state variable
     const navigation = useNavigation();
+    const bottomSheetRef = useRef(null);
+    const snapPoints = useMemo(() => ['100%', '100%'], []);
+
+    const handleSheetChanges = useCallback((index) => {
+        console.log('handleSheetChanges', index);
+    }, []);
+
+    const closeBottomSheet = () => {
+        bottomSheetRef.current?.close();
+    };
 
     const handleRegister = () => {
-        if (!name || !nim || !email || !phone || !password || !confirmPassword) {
+        if (!name || !phone || !password) {
             Dialog.show({
                 type: ALERT_TYPE.DANGER,
                 title: 'Form ada yang belum terisi',
                 textBody: 'Isi formnya dengan benar yuk!',
-                button: 'Tutup',
+                button: 'close',
             });
             return;
         }
 
         setIsLoading(true);
+        setIsBottomSheetOpen(true); // Open the bottom sheet
+    };
 
+    const handleBottomSheetClose = async (coordinates) => {
+        setLat(coordinates.latitude);
+        setLng(coordinates.longitude);
+        console.log(coordinates.latitude);
+        console.log(coordinates.longitude);
+        closeBottomSheet();
+
+        if (coordinates.latitude !== null && coordinates.longitude !== null) {
+            await postUserData(coordinates.latitude, coordinates.longitude);
+        } else {
+            console.log('Latitude or longitude is null, not posting user data.');
+        }
+    };
+
+    const postUserData = async (plat, plng) => {
         const userData = {
             name: name,
-            nim: nim,
-            email: email,
             phone: phone,
             password: password,
-            type: 'penjamu',
+            address: address,
+            lat: plat,
+            lng: plng,
+            type: 'merchant',
         };
 
-        AsyncStorage.setItem('userDataNIM', JSON.stringify(userData.nim))
-            .then(() => {
-                axios.post('https://jaka-itfair.vercel.app/api/v1/auth/register', userData)
-                    .then(response => {
-                        console.log('User Data:', userData);
-                        console.log('Registration successful:', response.data);
-                        console.log(nim);
-                        navigation.navigate('OTP');
-                    })
-                    .catch(error => {
-                        Dialog.show({
-                            type: ALERT_TYPE.WARNING,
-                            title: 'Pendaftaran Gagal',
-                            textBody: 'NIM, email, Nomor Whatsapp sudah digunakan sebelumnya.',
-                            button: 'Coba Lagi',
-                        });
-                        console.error('User Data:', userData);
-                        console.error('Registration failed:', error);
-                    })
-                    .finally(() => {
-                        setIsLoading(false);
-                    });
-            })
-            .catch(error => {
-                console.error('Error storing user data:', error);
-                setIsLoading(false);
-            });
+        try {
+            await AsyncStorage.setItem('userData', JSON.stringify(userData.phone));
+            const response = await axios.post('https://jaka-itfair.vercel.app/api/v1/auth/register', userData);
+            console.log('User Data:', userData);
+            console.log('Registration successful:', response.data);
+            navigation.navigate('OTP');
+        } catch (error) {
+            console.error('User Data:', userData);
+            console.error('Registration failed:', error);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
         <AlertNotificationRoot>
-            <KeyboardAvoidingView
-                style={{ flex: 1 }}
-            >
+            <KeyboardAvoidingView style={{ flex: 1 }}>
                 <ScrollView contentContainerStyle={styles.container}>
                     <View style={styles.contentContainer}>
                         <View style={styles.backgroundImageContainer}>
                             <View style={styles.textContainer}>
-                                <Text style={styles.signUpText}>Daftar<Text style={styles.headerText}> dengan email dan Nomor Whatsapp</Text></Text>
+                                <Text style={styles.signUpText}>Buat Akun<Text style={styles.headerText}> menggunakan nomor WhatsApp</Text></Text>
                             </View>
                             <Image style={styles.imageBackground} source={require('../assets/images/Background.png')} />
                         </View>
@@ -91,36 +107,23 @@ const RegisterScreen = () => {
                                     inputStyle={styles.inputStyle}
                                     placeholderStyle={styles.placeholderStyle}
                                     textErrorStyle={styles.textErrorStyle}
-                                    placeholder="Nama Lengkap"
+                                    placeholder="Nama Toko"
                                     placeholderTextColor={Colors.GREY}
                                     onChangeText={text => {
                                         setName(text);
                                     }}
                                 />
                                 <TextInput
-                                    inputMode="numeric"
-                                    value={nim}
+                                    inputMode="text"
+                                    value={address}
                                     style={styles.input}
                                     inputStyle={styles.inputStyle}
                                     placeholderStyle={styles.placeholderStyle}
                                     textErrorStyle={styles.textErrorStyle}
-                                    placeholder="NIM"
+                                    placeholder="Alamat"
                                     placeholderTextColor={Colors.GREY}
                                     onChangeText={text => {
-                                        setNim(text);
-                                    }}
-                                />
-                                <TextInput
-                                    inputMode="email"
-                                    value={email}
-                                    style={styles.input}
-                                    inputStyle={styles.inputStyle}
-                                    placeholderStyle={styles.placeholderStyle}
-                                    textErrorStyle={styles.textErrorStyle}
-                                    placeholder="Alamat Email"
-                                    placeholderTextColor={Colors.GREY}
-                                    onChangeText={text => {
-                                        setEmail(text);
+                                        setAddress(text);
                                     }}
                                 />
                                 <TextInput
@@ -130,7 +133,7 @@ const RegisterScreen = () => {
                                     inputStyle={styles.inputStyle}
                                     placeholderStyle={styles.placeholderStyle}
                                     textErrorStyle={styles.textErrorStyle}
-                                    placeholder="Nomor Whatsapp"
+                                    placeholder="Nomer Whatsapp"
                                     placeholderTextColor={Colors.GREY}
                                     onChangeText={text => {
                                         setPhone(text);
@@ -143,23 +146,10 @@ const RegisterScreen = () => {
                                     inputStyle={styles.inputStyle}
                                     placeholderStyle={styles.placeholderStyle}
                                     textErrorStyle={styles.textErrorStyle}
-                                    placeholder="Kata Sandi"
+                                    placeholder="Password"
                                     placeholderTextColor={Colors.GREY}
                                     onChangeText={text => {
                                         setPassword(text);
-                                    }}
-                                />
-                                <TextInput
-                                    mode="password"
-                                    value={confirmPassword}
-                                    style={styles.input}
-                                    inputStyle={styles.inputStyle}
-                                    placeholderStyle={styles.placeholderStyle}
-                                    textErrorStyle={styles.textErrorStyle}
-                                    placeholder="Konfirmasi Kata Sandi"
-                                    placeholderTextColor={Colors.GREY}
-                                    onChangeText={text => {
-                                        setConfirmPassword(text);
                                     }}
                                 />
                             </View>
@@ -178,6 +168,19 @@ const RegisterScreen = () => {
                         <Text style={styles.loginDefaultText}>Sudah punya akun? <Text style={styles.loginBoldText}>Masuk</Text></Text>
                     </TouchableOpacity>
                 </ScrollView>
+                {isBottomSheetOpen && ( // Conditionally render the bottom sheet
+                    <BottomSheet
+                        ref={bottomSheetRef}
+                        index={0}
+                        snapPoints={snapPoints}
+                        onChange={handleSheetChanges}
+                        animateOnMount={true}
+                        enableOverDrag={true}
+                        enablePanDownToClose={true}
+                    >
+                        <ShowMaps closeBottomSheet={handleBottomSheetClose} />
+                    </BottomSheet>
+                )}
             </KeyboardAvoidingView>
         </AlertNotificationRoot>
     );
@@ -189,7 +192,7 @@ const styles = StyleSheet.create({
         top: Dimensions.get('window').height - 870,
         alignItems: 'center',
         justifyContent: 'center',
-        height: 'auto'
+        height: 'auto',
     },
     contentContainer: {
         backgroundColor: Colors.WHITE,
@@ -227,7 +230,7 @@ const styles = StyleSheet.create({
         color: Colors.WHITE,
     },
     headerText: {
-        fontFamily: Fonts.regular
+        fontFamily: Fonts.regular,
     },
     input: {
         height: 50,
@@ -274,7 +277,7 @@ const styles = StyleSheet.create({
     },
     loginButton: {
         marginTop: 20,
-    }
+    },
 });
 
-export default RegisterScreen
+export default DetailOrder;
