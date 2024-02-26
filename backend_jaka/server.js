@@ -9,6 +9,7 @@ import { cartRouter } from "./routers/cartRouter.js";
 import { penjamuActivityRouter } from "./routers/penjamuActivityRouter.js";
 import { userRouter } from "./routers/userRouter.js";
 import { orderRouter } from "./routers/orderRouter.js";
+import { supabaseClient } from "./models/supabaseClient.js";
 dotenv.config();
 
 const app = express();
@@ -30,8 +31,15 @@ app.use("/api/v1/carts", cartRouter);
 app.use("/api/v1/orders", orderRouter);
 
 app.get("/", async (req, res) => {
+  const { data, error } = await supabaseClient
+    .from("orders")
+    .select(
+      "id, total, detail_products(id, products(id, name), price, quantity) "
+    )
+    .eq("id", "f96cbd2a-abfe-42cb-bf25-b06228da5329");
+
   res.status(200).json({
-    message: "Hello world, Jaka is here",
+    message: data,
   });
 });
 

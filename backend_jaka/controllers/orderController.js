@@ -58,6 +58,21 @@ const createOrder = async (req, res) => {
   }
 };
 
+const matchingOrderToPenjamu = async (req, res) => {
+  try {
+    const { data, error } = await orderService.matchingOrderToPenjamu(req.body);
+
+    if (error) {
+      throw new Error(error);
+    }
+    return res
+      .status(200)
+      .send(responseType("Successfully create order", data, false));
+  } catch (err) {
+    return res.status(400).send(responseType(err.message, null, true));
+  }
+};
+
 export default {
   getAllHistoryOrder,
   getHistoryOrderById,

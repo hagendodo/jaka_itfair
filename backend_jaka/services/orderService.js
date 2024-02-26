@@ -8,6 +8,7 @@ import {
 } from "firebase/firestore";
 import firebaseConfig from "../config/firebaseConfig.js";
 import { initializeApp } from "firebase/app";
+import messageHelper from "../helper/messageHelper.js";
 
 const app = initializeApp(firebaseConfig.firebaseConfig);
 
@@ -138,6 +139,31 @@ const getAllActiveOrder = async (queryString) => {
   }
 };
 
+const getCountActivePenjamu = async () => {
+  const currentMapsCollection = collection(db, "current_maps");
+  try {
+    const snapshot = await getDocs(currentMapsCollection);
+    return snapshot.size;
+  } catch (error) {
+    console.error("Error getting documents:", error);
+    return 0;
+  }
+};
+
+const orderCanceledByNotExistPenjamu = async (id) => {
+  await supabaseClient
+    .from("orders")
+    .update({
+      status: "canceled",
+    })
+    .eq("id", id);
+
+  return {
+    data: null,
+    error: "Tidak ada penjamu aktif saat ini",
+  };
+};
+
 const createOrder = async (x) => {
   try {
     const order = await supabaseClient
@@ -165,38 +191,79 @@ const createOrder = async (x) => {
       }
     });
 
+    await supabaseClient
+      .from("carts")
+      .delete()
+      .eq("merchant_id", x.merchant_id)
+      .eq("user_id", x.user_id);
+
+    const getTotalActivePenjamu = await getCountActivePenjamu();
+
+    if (getTotalActivePenjamu <= 0) {
+      return await orderCanceledByNotExistPenjamu(orderData.id);
+    }
+
     const merch = await supabaseClient
       .from("merchants")
       .select()
-      .eq("id", x.merchant_id);
+      .eq("id", x.merchant_id)
+      .single();
+
+    const templateMessageNotifToMerchant = `📦 Pesanan Masuk
+
+    Halo,
+    
+    Kamu menerima pesanan baru untuk diproses. Silahkan cek aplikasi merchant.
+    
+    Nomor Pesanan: #${orderData.id}
+    Total Penjamu
+    
+    Silakan segera proses pesanan ini agar dapat memenuhi kebutuhan pelanggan kita dengan baik.
+    
+    Terima kasih atas kerja keras Anda dalam memberikan layanan terbaik kepada pelanggan kita.
+    
+    Salam,
+    Jaka
+    Jaka Corp.    
+    `;
+
+    await messageHelper.sendMessageToWhatsapp(
+      merch.data.phone,
+      templateMessageNotifToMerchant
+    );
+
+    return null;
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+};
+
+const matchingOrderToPenjamu = async (x) => {
+  try {
+    const merch = await supabaseClient
+      .from("merchants")
+      .select()
+      .eq("id", x.merchant_id)
+      .single();
 
     const penjamuId = await pairingPenjamuWithOrder(
       {
-        lat: parseFloat(merch.data[0].lat),
-        lng: parseFloat(merch.data[0].lng),
+        lat: parseFloat(merch.data.lat),
+        lng: parseFloat(merch.data.lng),
       },
-      orderData.id
+      x.order_id
     );
 
     if (penjamuId === null) {
-      await supabaseClient
-        .from("orders")
-        .update({
-          status: "canceled",
-        })
-        .eq("id", orderData.id);
-
-      return {
-        data: null,
-        error: "Tidak ada penjamu aktif saat ini",
-      };
+      return await orderCanceledByNotExistPenjamu(x.order_id);
     }
 
     await supabaseClient
       .from("penjamu_activities")
       .update({
         status: "order",
-        order_id: orderData.id,
+        order_id: x.order_id,
       })
       .eq("id", penjamuId);
 
@@ -206,13 +273,10 @@ const createOrder = async (x) => {
         penjamu_id: penjamuId,
         status: "active",
       })
-      .eq("id", orderData.id);
-
-    await supabaseClient
-      .from("carts")
-      .delete()
-      .eq("merchant_id", x.merchant_id)
-      .eq("user_id", x.user_id);
+      .eq("id", x.order_id)
+      .select(
+        "id, total, detail_products(id, products(id, name), price, quantity) "
+      );
 
     return {
       data: {
@@ -245,4 +309,5 @@ export default {
   getAllActiveOrder,
   getHistoryOrderById,
   createOrder,
+  matchingOrderToPenjamu,
 };
