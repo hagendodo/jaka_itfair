@@ -216,7 +216,7 @@ const createOrder = async (x) => {
     Kamu menerima pesanan baru untuk diproses. Silahkan cek aplikasi merchant.
     
     Nomor Pesanan: #${orderData.id}
-    Total Penjamu
+    Total Penjamu: ${getTotalActivePenjamu}
     
     Silakan segera proses pesanan ini agar dapat memenuhi kebutuhan pelanggan kita dengan baik.
     
@@ -275,8 +275,35 @@ const matchingOrderToPenjamu = async (x) => {
       })
       .eq("id", x.order_id)
       .select(
-        "id, total, detail_products(id, products(id, name), price, quantity) "
+        "id, address, total, notes, created_at, penjamus (id, name), users (id, name), detail_orders(products(id, name, image), price)"
       );
+
+    const penjamu = await supabaseClient
+      .from("penjamus")
+      .select()
+      .eq("id", penjamuId)
+      .single();
+
+    const templateMessageNotifToPenjamu = `📦 Pesanan Masuk
+
+    Halo,
+    
+    Kamu menerima pesanan baru untuk diproses. Silahkan cek aplikasi merchant.
+    
+    Nomor Pesanan: #${orderData.id}
+    
+    Silakan segera proses pesanan ini agar dapat memenuhi kebutuhan pelanggan kita dengan baik.
+    
+    Terima kasih atas kerja keras Anda dalam memberikan layanan terbaik kepada pelanggan kita.
+    
+    Salam,
+    Jaka
+    Jaka Corp. `;
+
+    await messageHelper.sendMessageToWhatsapp(
+      penjamu.data.phone,
+      templateMessageNotifToPenjamu
+    );
 
     return {
       data: {
