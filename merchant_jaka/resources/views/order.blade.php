@@ -17,7 +17,7 @@
                     <div class="col-lg-3 col-md-4 col-sm-12">
                         <div class="card p-3">
                             <div class="card-body">
-                                <h3 class="card-title m-b-5">{{$order['name']}}</h3>
+                                <h3 class="card-title m-b-5">{{$order['user']}}</h3>
                                 <h5 class="font-light">Rp. {{$order['total']}}</h5>
                                 <p>{{$order['description']}}</p>
                             </div>

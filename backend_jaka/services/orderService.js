@@ -9,6 +9,7 @@ import {
 import firebaseConfig from "../config/firebaseConfig.js";
 import { initializeApp } from "firebase/app";
 import messageHelper from "../helper/messageHelper.js";
+import { error } from "firebase-functions/logger";
 
 const app = initializeApp(firebaseConfig.firebaseConfig);
 
@@ -174,6 +175,10 @@ const createOrder = async (x) => {
         user_lng: parseFloat(x.lng),
       })
       .select();
+
+    if (order.error) {
+      throw new Error(order.error);
+    }
 
     const orderData = order.data[0];
 
