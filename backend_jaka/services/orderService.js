@@ -9,6 +9,7 @@ import {
 import firebaseConfig from "../config/firebaseConfig.js";
 import { initializeApp } from "firebase/app";
 import messageHelper from "../helper/messageHelper.js";
+import { error } from "firebase-functions/logger";
 
 const app = initializeApp(firebaseConfig.firebaseConfig);
 
@@ -101,12 +102,23 @@ const pairingPenjamuWithOrder = async (myLocation, orderId) => {
 
 const getAllHistoryOrder = async (queryString) => {
   try {
-    return await supabaseClient
-      .from("orders")
-      .select(
-        "id, address, total, notes, created_at, penjamus (id, name), users (id, name), detail_orders(products(id, name, image), price)"
-      )
-      .eq(`${queryString.type}_id`, queryString.id);
+    if (queryString.type == "merchant") {
+      return await supabaseClient
+        .from("orders")
+        .select(
+          "id, address, total, status, notes, created_at, penjamus (id, name), users (id, name), detail_orders(products(id, name, image, merchant_id), price, quantity)"
+        )
+        .eq(`detail_orders.products.merchant_id`, queryString.id)
+        .order("created_at", { ascending: false });
+    } else {
+      return await supabaseClient
+        .from("orders")
+        .select(
+          "id, address, total, status, notes, created_at, penjamus (id, name), users (id, name), detail_orders(products(id, name, image, merchants(id, name)), price, quantity)"
+        )
+        .eq(`${queryString.type}_id`, queryString.id)
+        .order("created_at", { ascending: false });
+    }
   } catch (err) {
     return err;
   }
@@ -172,24 +184,40 @@ const createOrder = async (x) => {
         user_id: x.user_id,
         user_lat: parseFloat(x.lat),
         user_lng: parseFloat(x.lng),
+        address: x.address,
       })
       .select();
 
+    if (order.error) {
+      throw new Error("KENAPA");
+    }
+
     const orderData = order.data[0];
+
+    let totalPrice = 0;
 
     x.products.forEach(async (element) => {
       const { error } = await supabaseClient.from("detail_orders").insert({
         order_id: orderData.id,
-        product_id: element.product_id,
+        product_id: element.id,
         price: element.price,
         quantity: element.quantity,
       });
+
+      totalPrice += element.price * element.quantity;
 
       if (error) {
         console.log(error);
         throw new Error("Insert ke detail_orders nya gagal");
       }
     });
+
+    await supabaseClient
+      .from("orders")
+      .update({
+        total: totalPrice,
+      })
+      .eq("id", orderData.id);
 
     await supabaseClient
       .from("carts")
@@ -216,7 +244,7 @@ const createOrder = async (x) => {
     Kamu menerima pesanan baru untuk diproses. Silahkan cek aplikasi merchant.
     
     Nomor Pesanan: #${orderData.id}
-    Total Penjamu
+    Total Penjamu: ${getTotalActivePenjamu}
     
     Silakan segera proses pesanan ini agar dapat memenuhi kebutuhan pelanggan kita dengan baik.
     
@@ -232,15 +260,32 @@ const createOrder = async (x) => {
       templateMessageNotifToMerchant
     );
 
-    return null;
+    return {
+      data: null,
+      error: null,
+    };
   } catch (err) {
     console.log(err);
-    throw new Error(err);
+    throw new Error(err.message);
   }
 };
 
 const matchingOrderToPenjamu = async (x) => {
   try {
+    if (x.status == "canceled") {
+      await supabaseClient
+        .from("orders")
+        .update({
+          status: "canceled",
+        })
+        .eq("id", x.order_id);
+
+      return {
+        data: null,
+        error: "Merchant menolak pesanan",
+      };
+    }
+
     const merch = await supabaseClient
       .from("merchants")
       .select()
@@ -267,7 +312,7 @@ const matchingOrderToPenjamu = async (x) => {
       })
       .eq("id", penjamuId);
 
-    await supabaseClient
+    const orderData = await supabaseClient
       .from("orders")
       .update({
         penjamu_id: penjamuId,
@@ -275,14 +320,43 @@ const matchingOrderToPenjamu = async (x) => {
       })
       .eq("id", x.order_id)
       .select(
-        "id, total, detail_products(id, products(id, name), price, quantity) "
-      );
+        "id, address, total, notes, created_at, penjamus (id, name), users (id, name), detail_orders(products(id, name, image), price)"
+      )
+      .single();
+
+    const penjamu = await supabaseClient
+      .from("penjamus")
+      .select()
+      .eq("id", penjamuId)
+      .single();
+
+    const templateMessageNotifToPenjamu = `📦 Pesanan Masuk, Siap untuk di antar
+
+    Halo,
+    
+    Kamu menerima pesanan baru untuk diantar. Silahkan cek aplikasi Jaka.
+    
+    Nomor Pesanan: #${x.order_id}
+    Nama Penerima: **${orderData.data.users.name}**
+    Alamat Pengantaran: **${orderData.data.address}**
+    
+    Silakan segera proses pesanan ini agar dapat memenuhi kebutuhan pelanggan kita dengan baik.
+    
+    Terima kasih atas kerja keras Anda dalam memberikan layanan terbaik kepada pelanggan kita.
+    
+    Salam,
+    Jaka
+    Jaka Corp. `;
+
+    await messageHelper.sendMessageToWhatsapp(
+      penjamu.data.phone,
+      templateMessageNotifToPenjamu
+    );
 
     return {
       data: {
         order: orderData,
         penjamu: penjamuId,
-        products: x.products,
       },
       error: null,
     };
@@ -292,17 +366,13 @@ const matchingOrderToPenjamu = async (x) => {
   }
 };
 
-/*
-
- 1. select active penjamu
- 2. choose penjamu
- 2. send confirmation take order and (detail order, destination coordinate) to penjamu
- 3. if decline, to step 2
- 4. change status penjamu to onDelivery
- 5. send notification to user and detail penjamu
- 6. 
-
-*/
+const checkOrderStatus = async (id) => {
+  return await supabaseClient
+    .from("orders")
+    .select("status")
+    .eq("id", id)
+    .single();
+};
 
 export default {
   getAllHistoryOrder,
@@ -310,4 +380,5 @@ export default {
   getHistoryOrderById,
   createOrder,
   matchingOrderToPenjamu,
+  checkOrderStatus,
 };
