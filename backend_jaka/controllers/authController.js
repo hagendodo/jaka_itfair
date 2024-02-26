@@ -61,7 +61,7 @@ const logout = async (req, res) => {
 
 const uploadKtm = async (req, res) => {
   try {
-    const { error } = await authService.uploadKtm(req.file, req.body);
+    const error = await authService.uploadKtm(req.file, req.body);
 
     if (error) {
       throw new Error("Upload KTM failed");

@@ -27,7 +27,7 @@ const login = async (x) => {
         queryBuilder = supabaseClient
           .from("merchants")
           .select(
-            "id, name, address, description, lat, lng, is_problem, is_activated, otp, password"
+            "id, name, phone, address, description, lat, lng, is_problem, is_activated, otp, password"
           );
         break;
       default:
@@ -115,7 +115,6 @@ const sendOtpToWhatsapp = async (otp, recipient) => {
     });
 
     const responseData = await response.json();
-    console.log(responseData);
   } catch (error) {
     console.error("Error:", error);
   }
@@ -160,8 +159,8 @@ const register = async (data, file = null) => {
         phone: data.phone,
         password: hashedPassword,
         address: data.address,
-        lat: data.lat,
-        lng: data.lng,
+        lat: parseFloat(data.lat),
+        lng: parseFloat(data.lng),
         otp: otp,
         image_url:
           "https://www.ardecokaryaglobal.com/wp-content/uploads/2015/09/akg-photo-dapur-coklat-pekan-baru1.jpg",
@@ -196,8 +195,9 @@ const logout = async (token) => {
 const uploadKtm = async (file, data) => {
   try {
     const image = await uploadHelper.uploadImage(file);
+
     const { error } = await supabaseClient
-      .from("penjamu")
+      .from("penjamus")
       .update({
         ktm: image.url,
       })

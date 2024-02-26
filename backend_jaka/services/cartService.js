@@ -48,6 +48,43 @@ const getAllCart = async (queryString = null) => {
   }
 };
 
+const getAllCartByMerchant = async (id) => {
+  try {
+    const { data, error } = await supabaseClient
+      .from("carts")
+      .select(
+        "id, merchants (id, name), products (id, name, price, image), quantity"
+      )
+      .eq("merchant_id", id);
+
+    const transformedData = data.reduce((acc, curr) => {
+      const existingMerchant = acc.find(
+        (item) => item.merchants.id === curr.merchants.id
+      );
+      if (existingMerchant) {
+        curr.products.cart_id = curr.id;
+        curr.products.quantity = curr.quantity;
+        existingMerchant.products.push(curr.products);
+      } else {
+        curr.products.quantity = curr.quantity;
+        curr.products.cart_id = curr.id;
+        acc.push({
+          merchants: curr.merchants,
+          products: [curr.products],
+        });
+      }
+      return acc;
+    }, []);
+
+    return {
+      data: transformedData,
+      error: null,
+    };
+  } catch (err) {
+    return err;
+  }
+};
+
 const getCartById = async (id) => {
   try {
     return await supabaseClient.from("carts").select().eq("id", id);
@@ -115,6 +152,7 @@ const deleteCart = async (id) => {
 
 export default {
   getAllCart,
+  getAllCartByMerchant,
   getCartById,
   createCart,
   updateCart,

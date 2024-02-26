@@ -19,6 +19,26 @@ const getAllCart = async (req, res) => {
   }
 };
 
+const getAllCartByMerchant = async (req, res) => {
+  try {
+    if (!req.params.id) {
+      throw new Error("Please add query string user_id and merchant_id");
+    }
+
+    const { data, error } = await cartService.getAllCartByMerchant(
+      req.params.id
+    );
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return res.status(200).send(responseType("Retrieve all cart", data, false));
+  } catch (err) {
+    return res.status(400).send(responseType(err.message, null, true));
+  }
+};
+
 const getCartById = async (req, res) => {
   try {
     const { data, error } = await cartService.getCartById(req.params.id);
@@ -72,6 +92,7 @@ const deleteCart = async (req, res) => {
 
 export default {
   getAllCart,
+  getAllCartByMerchant,
   getCartById,
   createCart,
   updateCart,

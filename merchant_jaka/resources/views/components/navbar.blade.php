@@ -1,10 +1,3 @@
-<?php
-
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-?>
 <!DOCTYPE html>
 <html dir="ltr" lang="en">
 
@@ -17,8 +10,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <meta name="author" content="">
     <!-- Favicon icon -->
     <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon.png">
-    <title>Sistem Informasi Geografis dan Rekomendasi untuk Salon di
-        Provinsi Nanggroe Aceh Darussalam</title>
+    <title>Merchant - Jaka</title>
     <!-- Custom CSS -->
     <link href="assets/libs/chartist/dist/chartist.min.css" rel="stylesheet">
     <!-- Custom CSS -->
@@ -54,11 +46,11 @@ if (session_status() === PHP_SESSION_NONE) {
                     <!-- ============================================================== -->
                     <!-- Logo -->
                     <!-- ============================================================== -->
-                    <div class="navbar-brand">
+                    <div class="navbar-brand mr-auto">
                         <a href="index.php" class="logo">
                             <!-- Logo icon -->
                             <b class="logo-icon text-white">
-                                SIG Salon
+                                Merchant
                             </b>
 
                         </a>
@@ -69,46 +61,10 @@ if (session_status() === PHP_SESSION_NONE) {
                     <!-- ============================================================== -->
                     <!-- Toggle which is visible on mobile only -->
                     <!-- ============================================================== -->
-                    <a class="topbartoggler d-block d-md-none waves-effect waves-light" href="javascript:void(0)"
-                        data-toggle="collapse" data-target="#navbarSupportedContent"
-                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                        <i class="ti-more"></i>
-                    </a>
+
                 </div>
                 <!-- ============================================================== -->
                 <!-- End Logo -->
                 <!-- ============================================================== -->
-                <div class="navbar-collapse collapse" id="navbarSupportedContent" data-navbarbg="skin6">
-                    <!-- ============================================================== -->
-                    <!-- toggle and nav items -->
-                    <!-- ============================================================== -->
-                    <ul class="navbar-nav float-left mr-auto">
-                        <!-- ============================================================== -->
-                        <!-- Search -->
-                        <!-- ============================================================== -->
-
-                    </ul>
-                    <!-- ============================================================== -->
-                    <!-- Right side toggle and nav items -->
-                    <!-- ============================================================== -->
-                    <ul class="navbar-nav float-right">
-                        <!-- ============================================================== -->
-                        <!-- User profile and search -->
-                        <!-- ============================================================== -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle waves-effect waves-dark text-dark" href=""
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
-                                    class="mdi mdi-account pt-3"></i> <?php echo $_SESSION['user_name'] ?></a>
-                            <div class="dropdown-menu dropdown-menu-right user-dd animated">
-                                <a class="dropdown-item" href="services/logout.php"><i
-                                        class="mdi mdi-logout m-r-5 m-l-5"></i>
-                                    Logout</a>
-                            </div>
-                        </li>
-                        <!-- ============================================================== -->
-                        <!-- User profile and search -->
-                        <!-- ============================================================== -->
-                    </ul>
-                </div>
             </nav>
         </header>

@@ -1,9 +1,8 @@
-import { firebaseClient } from "../models/firebaseClient.js";
-import { getFirestore, collection, getDocs } from "firebase/firestore/lite";
+import { collection, getDocs } from "firebase/firestore/lite";
 import { supabaseClient } from "../models/supabaseClient.js";
-
-const client = firebaseClient();
-const db = getFirestore(client);
+import { doc, getFirestore } from "firebase/firestore";
+import firebaseConfig from "../config/firebaseConfig.js";
+import { initializeApp } from "firebase/app";
 
 const calculateDistance = (point1, point2) => {
   const lat1 = point1.lat;
@@ -26,7 +25,11 @@ const calculateDistance = (point1, point2) => {
 };
 
 const pairingPenjamuWithOrder = async (myLocation, orderId) => {
-  const currentMapsCollection = collection(db, "current_maps");
+  const app = initializeApp(firebaseConfig.firebaseConfig);
+
+  const db = getFirestore(app);
+
+  const currentMapsCollection = doc(db, "current_maps");
   const currentMapSnapshot = await getDocs(currentMapsCollection);
   const currentMapList = currentMapSnapshot.docs.map((doc) => ({
     id: doc.id,
@@ -57,7 +60,7 @@ const pairingPenjamuWithOrder = async (myLocation, orderId) => {
 
     // Use transaction to delete the nearest location and insert it into a new collection
     const nearestLocationRef = doc(db, "current_maps", nearestLocation.id);
-    const newCollectionRef = collection(db, "temporary_orders");
+    const newCollectionRef = doc(db, "temporary_orders");
 
     try {
       await runTransaction(db, async (transaction) => {
@@ -114,60 +117,99 @@ const getHistoryOrderById = async (id, queryString) => {
   }
 };
 
+const getAllActiveOrder = async (queryString) => {
+  try {
+    return await supabaseClient
+      .from("orders")
+      .select(
+        "id, address, total, notes, created_at, penjamus (id, name), users (id, name), detail_orders(products(id, name, image), price)"
+      )
+      .eq(`${queryString.type}_id`, queryString.id);
+  } catch (err) {
+    return err;
+  }
+};
+
 const createOrder = async (x) => {
-  const order = await supabaseClient
-    .from("orders")
-    .insert({
-      user_id: x.user_id,
-    })
-    .select();
+  try {
+    const order = await supabaseClient
+      .from("orders")
+      .insert({
+        user_id: x.user_id,
+        user_lat: parseFloat(x.lat),
+        user_lng: parseFloat(x.lng),
+      })
+      .select();
 
-  const orderData = order[0];
+    const orderData = order.data[0];
 
-  x.products.forEach(async (element) => {
-    const { error } = await supabaseClient.from("detail_orders").insert({
-      order_id: orderData.id,
-      product_id: element.product_id,
-      price: element.price,
-      quantity: element.quantity,
+    x.products.forEach(async (element) => {
+      const { error } = await supabaseClient.from("detail_orders").insert({
+        order_id: orderData.id,
+        product_id: element.product_id,
+        price: element.price,
+        quantity: element.quantity,
+      });
+
+      if (error) {
+        console.log(error);
+        throw new Error("Insert ke detail_orders nya gagal");
+      }
     });
 
-    if (error) {
-      console.log(error);
-      throw new Error("Insert ke detail_orders nya gagal");
+    const merch = await supabaseClient
+      .from("merchants")
+      .select()
+      .eq("id", x.merchant_id);
+
+    const penjamuId = pairingPenjamuWithOrder(
+      {
+        lat: parseFloat(merch.data[0].lat),
+        lng: parseFloat(merch.data[0].lng),
+      },
+      orderData.id
+    );
+
+    if (penjamuId === null) {
+      return {
+        data: null,
+        error: "Tidak ada penjamu aktif saat ini",
+      };
     }
-  });
 
-  const penjamuId = pairingPenjamuWithOrder(
-    {
-      lat: x.lat,
-      lng: x.lng,
-    },
-    orderData.id
-  );
+    await supabaseClient
+      .from("penjamu_activities")
+      .update({
+        status: "order",
+        order_id: orderData.id,
+      })
+      .eq("id", penjamuId);
 
-  if (penjamuId === null) {
+    await supabaseClient
+      .from("orders")
+      .update({
+        penjamu_id: penjamuId,
+      })
+      .eq("id", orderData.id);
+
+    await supabaseClient
+      .from("carts")
+      .delete()
+      .eq("merchant_id", x.merchant_id)
+      .eq("user_id", x.user_id);
+
     return {
-      data: null,
-      error: "Tidak ada penjamu aktif saat ini",
+      data: {
+        order: orderData,
+        penjamu: penjamuId,
+        products: x.products,
+      },
+      error: null,
     };
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
   }
-
-  await supabaseClient
-    .from("penjamu_activities")
-    .update({
-      status: "order",
-    })
-    .eq("id", penjamuId);
-
-  return {
-    data: {
-      order_id: orderData.id,
-      penjamu: penjamuId,
-      products: x.products,
-    },
-    error: null,
-  };
 };
 
 /*
@@ -184,6 +226,7 @@ const createOrder = async (x) => {
 
 export default {
   getAllHistoryOrder,
+  getAllActiveOrder,
   getHistoryOrderById,
   createOrder,
 };

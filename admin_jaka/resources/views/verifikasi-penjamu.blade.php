@@ -68,7 +68,12 @@
                                                     </button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    <img src="https://assets-global.website-files.com/64abfb060667e3285fe19983/64f00ba612b2fd18a68dd1c7_contoh%20KTM.jpeg" width="600" height="auto" alt="FOTO KTM"/>
+                                                    
+                                                    <img src="{{$penjamu['ktm']}}" width="600" height="auto" alt="FOTO KTM"/>
+
+                                                    <p>Nama : <b>{{$penjamu['name']}}</b></p>
+                                                    <p>NIM : <b>{{$penjamu['nim']}}</b></p>
+                                                    <p>Phone/Whatsapp : <b>{{$penjamu['phone']}}</b></p>
 
                                                     <div class="row mt-4">
                                                         <div class="col text-left">

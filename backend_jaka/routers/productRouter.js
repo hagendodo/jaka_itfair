@@ -13,10 +13,14 @@ productRouter.get("/", commonMiddleware, productController.getAllProduct);
 productRouter.get("/:id", commonMiddleware, productController.getProductById);
 productRouter.post(
   "/",
-  upload.single("filename"),
+  [...commonMiddleware, upload.single("filename")],
   productController.createProduct
 );
-productRouter.put("/:id", commonMiddleware, productController.updateProduct);
+productRouter.put(
+  "/:id",
+  [...commonMiddleware, upload.single("filename")],
+  productController.updateProduct
+);
 productRouter.delete("/:id", commonMiddleware, productController.deleteProduct);
 
 export { productRouter };
