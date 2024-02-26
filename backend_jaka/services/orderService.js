@@ -180,7 +180,7 @@ const createOrder = async (x) => {
     x.products.forEach(async (element) => {
       const { error } = await supabaseClient.from("detail_orders").insert({
         order_id: orderData.id,
-        product_id: element.product_id,
+        product_id: element.id,
         price: element.price,
         quantity: element.quantity,
       });
