@@ -212,6 +212,10 @@ const createOrder = async (x) => {
 
       if (error) {
         console.log(error);
+        return {
+          data: x,
+          error: null,
+        };
         throw new Error("Insert ke detail_orders nya gagal");
       }
     });
@@ -269,6 +273,10 @@ const createOrder = async (x) => {
       error: null,
     };
   } catch (err) {
+    return {
+      data: x,
+      error: null,
+    };
     console.log(err);
     throw new Error(err.message);
   }
