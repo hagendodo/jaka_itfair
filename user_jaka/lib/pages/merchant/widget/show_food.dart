@@ -5,9 +5,18 @@ import 'package:user_jaka/common/reusable_text.dart';
 import 'package:user_jaka/constants/constants.dart';
 
 class ShowFood extends StatelessWidget {
-  const ShowFood({super.key, required this.food});
+  const ShowFood({
+    super.key,
+    required this.image,
+    required this.name,
+    required this.price,
+    required this.description,
+  });
 
-  final dynamic food;
+  final String image;
+  final String name;
+  final String price;
+  final String description;
 
   @override
   Widget build(BuildContext context) {
@@ -19,9 +28,10 @@ class ShowFood extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(30),
             child: Image.network(
-              'https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Pizza-3007395.jpg/330px-Pizza-3007395.png',
+              image,
               fit: BoxFit.cover,
-              width: double.infinity,
+              width: 250.h,
+              height: 250.h,
             ),
           ),
           SizedBox(
@@ -36,14 +46,11 @@ class ShowFood extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     ReusableText(
-                      text: food['title'],
+                      text: name,
                       style: appStyle(18, AppColors.black, FontWeight.bold),
                     ),
                     ReusableText(
-                      text: "Rp ${food['price'].toString().replaceAllMapped(
-                            RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-                            (Match match) => '${match[1]}.',
-                          )}",
+                      text: "Rp$price",
                       style: appStyle(18, AppColors.primary, FontWeight.bold),
                     ),
                   ],
@@ -52,11 +59,11 @@ class ShowFood extends StatelessWidget {
                   height: 5.h,
                 ),
                 Text(
-                  food['description'],
+                  description,
                   textAlign: TextAlign.justify,
                   maxLines: 5,
                   style: appStyle(11, AppColors.grey, FontWeight.w400),
-                )
+                ),
               ],
             ),
           )

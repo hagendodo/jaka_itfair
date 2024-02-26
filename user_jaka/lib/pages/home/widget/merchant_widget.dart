@@ -6,20 +6,19 @@ import 'package:user_jaka/common/reusable_text.dart';
 import 'package:user_jaka/constants/constants.dart';
 
 class MerchantWidget extends StatelessWidget {
-  const MerchantWidget(
-      {super.key,
-      required this.image,
-      required this.logo,
-      required this.title,
-      required this.time,
-      required this.ratingCount,
-      required this.rating,
-      this.onTap});
+  const MerchantWidget({
+    super.key,
+    required this.image,
+    required this.name,
+    required this.ratingCount,
+    required this.rating,
+    required this.address,
+    this.onTap,
+  });
 
   final String image;
-  final String logo;
-  final String title;
-  final String time;
+  final String name;
+  final String address;
   final String ratingCount;
   final double rating;
   final void Function()? onTap;
@@ -55,28 +54,6 @@ class MerchantWidget extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Positioned(
-                      right: 10.w,
-                      top: 10.h,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(50),
-                        child: Container(
-                          color: AppColors.brokenwhite,
-                          child: Padding(
-                            padding: EdgeInsets.all(2.h),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(50.r),
-                              child: Image.network(
-                                logo,
-                                fit: BoxFit.cover,
-                                width: 20.w,
-                                height: 20.h,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -86,21 +63,8 @@ class MerchantWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ReusableText(
-                      text: title,
+                      text: name,
                       style: appStyle(12, AppColors.black, FontWeight.w500),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        ReusableText(
-                          text: 'Delivery Time',
-                          style: appStyle(9, AppColors.grey, FontWeight.w500),
-                        ),
-                        ReusableText(
-                          text: time,
-                          style: appStyle(9, AppColors.black, FontWeight.w500),
-                        )
-                      ],
                     ),
                     Row(
                       children: [
@@ -115,8 +79,9 @@ class MerchantWidget extends StatelessWidget {
                         ),
                         SizedBox(width: 10.w),
                         ReusableText(
-                            text: "+ $ratingCount reviews and ratings",
-                            style: appStyle(9, AppColors.grey, FontWeight.w500))
+                          text: "+ $ratingCount ratings",
+                          style: appStyle(9, AppColors.grey, FontWeight.w500),
+                        ),
                       ],
                     )
                   ],

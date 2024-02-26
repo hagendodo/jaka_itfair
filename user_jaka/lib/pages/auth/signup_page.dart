@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:user_jaka/common/appstyle.dart';
 import 'package:user_jaka/common/reusable_text.dart';
 import 'package:user_jaka/constants/constants.dart';
-import 'package:user_jaka/controller/auth_controller.dart';
-import 'package:user_jaka/pages/auth/otp_page.dart';
+import 'package:user_jaka/hooks/auth_hooks.dart';
+import 'package:user_jaka/pages/auth/otp.dart';
+
 import 'package:user_jaka/pages/auth/signin_page.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -22,15 +24,23 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController phone = TextEditingController();
   final TextEditingController password = TextEditingController();
   final TextEditingController confirmpassword = TextEditingController();
-  String? nim;
+  final TextEditingController nim = TextEditingController();
+
+  bool _obscureTextPass = true;
+  bool _obscureTextConfirmPass = true;
+  bool isLoading = false;
 
   bool isAllInputFilled() {
-    return nim != null &&
+    return nim.text.isNotEmpty &&
         name.text.isNotEmpty &&
         email.text.isNotEmpty &&
         phone.text.isNotEmpty &&
         password.text.isNotEmpty &&
         confirmpassword.text.isNotEmpty;
+  }
+
+  bool isPasswordMatch() {
+    return password.text == confirmpassword.text;
   }
 
   @override
@@ -49,8 +59,14 @@ class _SignUpPageState extends State<SignUpPage> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Container(
-                    height: MediaQuery.of(context).size.height * 0.30,
+                    height: MediaQuery.of(context).size.height * 0.25,
                     color: AppColors.primary,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Image.asset('assets/img/auth_bg.png'),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -122,9 +138,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 ],
                               ),
                               child: TextField(
-                                onChanged: (value) {
-                                  nim = value;
-                                },
+                                controller: nim,
                                 keyboardType: TextInputType.number,
                                 decoration: InputDecoration(
                                   hintText: 'NIM',
@@ -246,17 +260,39 @@ class _SignUpPageState extends State<SignUpPage> {
                                   ),
                                 ],
                               ),
-                              child: TextField(
-                                controller: password,
-                                obscureText: true,
-                                decoration: InputDecoration(
-                                  hintText: 'Password',
-                                  hintStyle: appStyle(
-                                      15, AppColors.greytext, FontWeight.w400),
-                                  border: InputBorder.none,
-                                  contentPadding:
-                                      EdgeInsets.symmetric(horizontal: 15.h),
-                                ),
+                              child: Stack(
+                                alignment: Alignment.centerRight,
+                                children: [
+                                  TextField(
+                                    controller: password,
+                                    obscureText: _obscureTextPass,
+                                    decoration: InputDecoration(
+                                      hintText: 'Password',
+                                      hintStyle: appStyle(15,
+                                          AppColors.greytext, FontWeight.w400),
+                                      border: InputBorder.none,
+                                      contentPadding: EdgeInsets.only(
+                                          left: 15.h, right: 50.h),
+                                    ),
+                                    cursorColor: AppColors.black,
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(right: 5.h),
+                                    child: IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          _obscureTextPass = !_obscureTextPass;
+                                        });
+                                      },
+                                      icon: Icon(
+                                        _obscureTextPass
+                                            ? Icons.visibility
+                                            : Icons.visibility_off,
+                                        color: AppColors.grey,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                             SizedBox(
@@ -277,17 +313,40 @@ class _SignUpPageState extends State<SignUpPage> {
                                   ),
                                 ],
                               ),
-                              child: TextField(
-                                controller: confirmpassword,
-                                obscureText: true,
-                                decoration: InputDecoration(
-                                  hintText: 'Confirm Password',
-                                  hintStyle: appStyle(
-                                      15, AppColors.greytext, FontWeight.w400),
-                                  border: InputBorder.none,
-                                  contentPadding:
-                                      EdgeInsets.symmetric(horizontal: 15.h),
-                                ),
+                              child: Stack(
+                                alignment: Alignment.centerRight,
+                                children: [
+                                  TextField(
+                                    controller: confirmpassword,
+                                    obscureText: _obscureTextConfirmPass,
+                                    decoration: InputDecoration(
+                                      hintText: 'Confirm Password',
+                                      hintStyle: appStyle(15,
+                                          AppColors.greytext, FontWeight.w400),
+                                      border: InputBorder.none,
+                                      contentPadding: EdgeInsets.only(
+                                          left: 15.h, right: 50.h),
+                                    ),
+                                    cursorColor: AppColors.black,
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(right: 5.h),
+                                    child: IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          _obscureTextConfirmPass =
+                                              !_obscureTextConfirmPass;
+                                        });
+                                      },
+                                      icon: Icon(
+                                        _obscureTextConfirmPass
+                                            ? Icons.visibility
+                                            : Icons.visibility_off,
+                                        color: AppColors.grey,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
@@ -297,44 +356,83 @@ class _SignUpPageState extends State<SignUpPage> {
                         height: 25.h,
                       ),
                       GestureDetector(
-                        onTap: () async {
-                          if (isAllInputFilled()) {
-                            bool success = await _signUpController.signUp(
-                              nim!,
-                              name.text,
-                              email.text,
-                              phone.text,
-                              password.text,
-                            );
-                            if (success) {
-                              Get.to(
-                                () => const OTPPage(),
-                                arguments: {
-                                  'nim': nim,
-                                },
-                              );
-                            } else {
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(const SnackBar(
-                                content:
-                                    Text('Sign up failed. Please try again.'),
-                                backgroundColor: Colors.red,
-                              ));
-                            }
-                          } else {
-                            ScaffoldMessenger.of(context)
-                                .showSnackBar(const SnackBar(
-                              content: Text('Please fill in all fields'),
-                              backgroundColor: Colors.red,
-                            ));
-                          }
-                        },
+                        onTap: isLoading
+                            ? null
+                            : () async {
+                                setState(() {
+                                  isLoading = true;
+                                });
+
+                                if (isAllInputFilled()) {
+                                  if (isPasswordMatch()) {
+                                    bool success =
+                                        await _signUpController.signUp(
+                                      nim.text,
+                                      name.text,
+                                      email.text,
+                                      phone.text,
+                                      password.text,
+                                    );
+                                    if (success) {
+                                      final SharedPreferences prefs =
+                                          await SharedPreferences.getInstance();
+                                      final String? nim =
+                                          prefs.getString('nim');
+                                      if (nim != null) {
+                                        Get.to(
+                                          () => OTP(nim: nim),
+                                        );
+                                      } else {
+                                        // print('gagal');
+                                        if (!context.mounted) return;
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                            content: Text('Gagal'),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                      }
+                                    } else {
+                                      if (!context.mounted) return;
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                              'Sign up failed. Please try again.'),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                    }
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content:
+                                            Text('Passwords do not match.'),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content:
+                                          Text('Please fill in all fields'),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
+
+                                setState(() {
+                                  isLoading = false;
+                                });
+                              },
                         child: Container(
                           padding: EdgeInsets.symmetric(vertical: 5.h),
                           width: double.infinity,
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            color: AppColors.primary,
+                            color: isLoading ? Colors.grey : AppColors.primary,
                             borderRadius: const BorderRadius.all(
                               Radius.circular(12),
                             ),
@@ -347,13 +445,19 @@ class _SignUpPageState extends State<SignUpPage> {
                               ),
                             ],
                           ),
-                          child: ReusableText(
-                            text: 'Sign Up',
-                            style:
-                                appStyle(18, AppColors.white, FontWeight.bold),
-                          ),
+                          child: isLoading
+                              ? const CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                )
+                              : ReusableText(
+                                  text: 'Sign Up',
+                                  style: appStyle(
+                                      18, AppColors.white, FontWeight.bold),
+                                ),
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),

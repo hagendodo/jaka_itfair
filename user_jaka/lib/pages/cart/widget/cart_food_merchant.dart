@@ -31,15 +31,15 @@ class _CartFoodMerchantState extends State<CartFoodMerchant> {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Checkbox(
-          activeColor: AppColors.primary,
-          value: controller.isCheckbox.value,
-          onChanged: (value) {
-            setState(() {
-              controller.checkBox(true);
-            });
-          },
-        ),
+        // Checkbox(
+        //   activeColor: AppColors.primary,
+        //   value: controller.isCheckbox.value,
+        //   onChanged: (value) {
+        //     setState(() {
+        //       controller.checkBox(true);
+        //     });
+        //   },
+        // ),
         SizedBox(
           width: 5.h,
         ),
@@ -51,8 +51,8 @@ class _CartFoodMerchantState extends State<CartFoodMerchant> {
               children: [
                 Image.network(
                   widget.imageURL,
-                  width: 70,
-                  height: 70,
+                  width: 90,
+                  height: 90,
                   fit: BoxFit.cover,
                 ),
                 SizedBox(

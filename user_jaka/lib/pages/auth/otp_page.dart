@@ -5,20 +5,17 @@ import 'package:user_jaka/common/appstyle.dart';
 import 'package:user_jaka/common/reusable_text.dart';
 import 'package:user_jaka/constants/constants.dart';
 import 'package:user_jaka/controller/auth_controller.dart';
-import 'package:user_jaka/pages/home/home_page.dart';
 import 'package:user_jaka/pages/main_page.dart';
 
 class OTPPage extends StatelessWidget {
-  const OTPPage({Key? key});
+  const OTPPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     final String? nim = Get.arguments?['nim'];
 
-    // Periksa jika nim null
     if (nim == null) {
-      // Tampilkan pesan kesalahan jika nim null
-      WidgetsBinding.instance?.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Error: NIM is null.'),
@@ -50,13 +47,15 @@ class OTPPage extends StatelessWidget {
               showFieldAsBox: true,
               onCodeChanged: (String code) {},
               onSubmit: (String verificationCode) async {
-                print('NIM: $nim, OTP: $verificationCode');
                 OTPController otpController = OTPController();
                 bool isVerified =
-                    await otpController.verifyOTP(nim!, verificationCode);
+                    await otpController.verifyOTP(nim, verificationCode);
                 if (isVerified) {
-                  Get.to(() => const MainPage());
+                  Get.offAll(
+                    () => const MainPage(),
+                  );
                 } else {
+                  if (!context.mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('OTP Failed. Please try again.'),

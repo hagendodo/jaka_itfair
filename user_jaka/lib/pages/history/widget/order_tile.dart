@@ -41,8 +41,10 @@ class OrderTile extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 10.h, vertical: 20.h),
             child: Row(
               children: [
-                Image.network(
-                  "https://cdn.iconscout.com/icon/free/png-512/free-fork-and-spoon-1960305-1655191.png?f=webp&w=60",
+                Image.asset(
+                  "assets/img/order_icons.png",
+                  height: 70,
+                  width: 70,
                 ),
                 const SizedBox(width: 10),
                 Expanded(

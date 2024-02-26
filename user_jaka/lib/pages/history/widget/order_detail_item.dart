@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:user_jaka/constants/constants.dart';
 
 class OrderDetailItem extends StatelessWidget {
   final String itemName;
@@ -22,7 +23,7 @@ class OrderDetailItem extends StatelessWidget {
           decoration: const BoxDecoration(
             border: Border(
               bottom: BorderSide(
-                color: Colors.grey, // Warna border
+                color: AppColors.white, // Warna border
                 width: 1, // Lebar border
               ),
             ),
@@ -30,8 +31,14 @@ class OrderDetailItem extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(itemName),
-              Text('$quantity x $price'),
+              Text(
+                itemName,
+                style: const TextStyle(color: AppColors.white),
+              ),
+              Text(
+                '$quantity x $price',
+                style: const TextStyle(color: AppColors.white),
+              ),
             ],
           ),
         ),

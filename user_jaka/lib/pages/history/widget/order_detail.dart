@@ -1,7 +1,9 @@
+import 'package:dotlottie_loader/dotlottie_loader.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
 import 'package:user_jaka/common/appstyle.dart';
 import 'package:user_jaka/constants/constants.dart';
 import 'package:user_jaka/pages/chat/chat_driver.dart';
@@ -29,9 +31,20 @@ class OrderDetail extends StatelessWidget {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Container(
-            color: AppColors.grey,
-            child: const Text('Maps Content'),
+          Positioned(
+            bottom: MediaQuery.of(context).size.height * 0.450,
+            left: 10,
+            right: 10,
+            child: DotLottieLoader.fromAsset('assets/img/waiting.lottie',
+                frameBuilder: (BuildContext ctx, DotLottie? dotlottie) {
+              if (dotlottie != null) {
+                return Lottie.memory(
+                  dotlottie.animations.values.single,
+                );
+              } else {
+                return Container();
+              }
+            }),
           ),
           DraggableScrollableSheet(
             initialChildSize: 0.05,
@@ -46,7 +59,7 @@ class OrderDetail extends StatelessWidget {
                     vertical: 20.h,
                   ),
                   decoration: const BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.primary,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(40),
                       topRight: Radius.circular(40),
@@ -60,7 +73,7 @@ class OrderDetail extends StatelessWidget {
                         width: 45,
                         margin: EdgeInsets.only(top: 5.h, bottom: 10.h),
                         decoration: const BoxDecoration(
-                          color: AppColors.grey,
+                          color: AppColors.white,
                           borderRadius: BorderRadius.all(
                             Radius.circular(3),
                           ),
@@ -85,14 +98,14 @@ class OrderDetail extends StatelessWidget {
                                 children: [
                                   Text(
                                     'Raden Ibnu',
-                                    style: appStyle(13, AppColors.greytext,
-                                        FontWeight.bold),
+                                    style: appStyle(
+                                        13, AppColors.white, FontWeight.bold),
                                   ),
                                   Text(
                                     'Order ID 12889120122',
                                     style: appStyle(
                                       12,
-                                      AppColors.grey,
+                                      AppColors.white,
                                       FontWeight.normal,
                                     ),
                                   ),
@@ -119,7 +132,7 @@ class OrderDetail extends StatelessWidget {
                             'Delivery Details',
                             style: appStyle(
                               15,
-                              AppColors.black,
+                              AppColors.white,
                               FontWeight.bold,
                             ),
                           ),
@@ -150,7 +163,7 @@ class OrderDetail extends StatelessWidget {
                             'Order',
                             style: appStyle(
                               15,
-                              AppColors.black,
+                              AppColors.white,
                               FontWeight.bold,
                             ),
                           ),
@@ -177,11 +190,14 @@ class OrderDetail extends StatelessWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('Total'),
+                              const Text(
+                                'Total',
+                                style: TextStyle(color: AppColors.white),
+                              ),
                               Text(
                                 'Rp 350000',
                                 style: appStyle(
-                                    12, AppColors.black, FontWeight.bold),
+                                    12, AppColors.white, FontWeight.bold),
                               ),
                             ],
                           )

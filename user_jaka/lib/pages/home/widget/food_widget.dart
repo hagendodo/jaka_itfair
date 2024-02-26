@@ -9,13 +9,11 @@ class FoodWidget extends StatelessWidget {
       {super.key,
       required this.image,
       required this.title,
-      required this.time,
       required this.price,
       this.onTap});
 
   final String image;
   final String title;
-  final String time;
   final String price;
   final void Function()? onTap;
 
@@ -76,7 +74,7 @@ class FoodWidget extends StatelessWidget {
                           style: appStyle(9, AppColors.grey, FontWeight.w500),
                         ),
                         ReusableText(
-                          text: time,
+                          text: 'sadsa',
                           style: appStyle(9, AppColors.black, FontWeight.w500),
                         )
                       ],

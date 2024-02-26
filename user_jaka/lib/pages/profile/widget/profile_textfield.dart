@@ -47,7 +47,7 @@ class ProfileTextField extends StatelessWidget {
               controller: controller,
               decoration: InputDecoration(
                 border: InputBorder.none,
-                hintText: 'Enter your $title',
+                hintText: title,
                 hintStyle: TextStyle(
                   fontSize: 12.sp,
                   color: AppColors.grey,

@@ -7,13 +7,23 @@ import 'package:user_jaka/common/appstyle.dart';
 import 'package:user_jaka/common/reusable_text.dart';
 import 'package:user_jaka/constants/constants.dart';
 import 'package:user_jaka/controller/merchant_controller.dart';
-import 'package:user_jaka/pages/cart/widget/cart_detail.dart';
 import 'package:user_jaka/pages/merchant/widget/merchant_food.dart';
 
 class MerchantPage extends StatefulWidget {
-  const MerchantPage({super.key, required this.merchants});
+  const MerchantPage({
+    super.key,
+    required this.merchantId,
+    required this.name,
+    required this.image,
+    required this.address,
+    required this.rating,
+  });
 
-  final dynamic merchants;
+  final String name;
+  final String image;
+  final String address;
+  final double rating;
+  final String merchantId;
 
   @override
   State<MerchantPage> createState() => _MerchantPageState();
@@ -43,7 +53,7 @@ class _MerchantPageState extends State<MerchantPage> {
                             height: 230.h,
                             color: AppColors.white,
                             child: Image.network(
-                              widget.merchants['imageURL'],
+                              widget.image,
                               fit: BoxFit.cover,
                             ),
                           );
@@ -78,14 +88,14 @@ class _MerchantPageState extends State<MerchantPage> {
                       height: 10,
                     ),
                     ReusableText(
-                      text: widget.merchants['title'],
+                      text: widget.name,
                       style: appStyle(18, AppColors.black, FontWeight.w600),
                     ),
                     SizedBox(
                       height: 5.h,
                     ),
                     ReusableText(
-                      text: widget.merchants['coords']['address'],
+                      text: widget.address,
                       style:
                           appStyle(11, AppColors.greytext, FontWeight.normal),
                     ),
@@ -95,7 +105,7 @@ class _MerchantPageState extends State<MerchantPage> {
                     Row(
                       children: [
                         RatingBarIndicator(
-                          rating: widget.merchants['rating'].toDouble(),
+                          rating: widget.rating,
                           itemBuilder: (context, index) => const Icon(
                             Icons.star,
                             color: AppColors.primary,
@@ -107,7 +117,7 @@ class _MerchantPageState extends State<MerchantPage> {
                           width: 5.w,
                         ),
                         ReusableText(
-                          text: "(${widget.merchants['rating'].toString()}/5)",
+                          text: "${widget.rating.toString()}/5.0",
                           style: appStyle(9, AppColors.grey, FontWeight.w500),
                         ),
                       ],
@@ -115,90 +125,11 @@ class _MerchantPageState extends State<MerchantPage> {
                     const Divider(
                       color: AppColors.grey,
                     ),
-                    MerchantFood(merchantId: widget.merchants['_id']),
+                    MerchantFood(merchantId: widget.merchantId),
                   ],
                 ),
               ),
             ],
-          ),
-          Obx(
-            () => Positioned(
-              bottom: 10.h,
-              left: 0,
-              right: 0,
-              child: Visibility(
-                visible: buttonController.showButton.value,
-                child: Container(
-                  alignment: Alignment.center,
-                  child: GestureDetector(
-                    onTap: () {
-                      showModalBottomSheet(
-                        isScrollControlled: true,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(
-                            topRight: Radius.circular(30),
-                            topLeft: Radius.circular(30),
-                          ),
-                        ),
-                        context: context,
-                        builder: (context) => SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.90,
-                          child: const ShowCart(),
-                        ),
-                      );
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 20.h, vertical: 12.h),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                ReusableText(
-                                  text: '1 item',
-                                  style: appStyle(
-                                      11, AppColors.white, FontWeight.bold),
-                                ),
-                                ReusableText(
-                                  text: 'Mie Goreng, Bu Atih',
-                                  style: appStyle(
-                                      10, AppColors.white, FontWeight.w500),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                ReusableText(
-                                  text: '20.000',
-                                  style: appStyle(
-                                      14, AppColors.white, FontWeight.bold),
-                                ),
-                                SizedBox(
-                                  width: 10.h,
-                                ),
-                                const Icon(
-                                  FontAwesome.shopping_bag,
-                                  color: AppColors.white,
-                                ),
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
           ),
         ],
       ),

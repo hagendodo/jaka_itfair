@@ -1,6 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:user_jaka/common/appstyle.dart';
 import 'package:user_jaka/common/reusable_text.dart';
 import 'package:user_jaka/constants/constants.dart';
@@ -33,128 +33,92 @@ class DocumentManagement extends StatelessWidget {
           ),
         ],
       ),
-      body: SafeArea(
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 15.h, vertical: 20.h),
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 10.h, vertical: 10.h),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.grey, width: 2),
+      body: Center(
+        child: Column(
+          children: [
+            SizedBox(
+              height: 10.h,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
-                  height: 10.h,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ReusableText(
-                      text: 'Kartu Tanda Mahasiswa',
-                      style: appStyle(
-                        16,
-                        AppColors.grey,
-                        FontWeight.w600,
-                      ),
+            Image.asset(
+              'assets/img/ktm_new.png',
+              fit: BoxFit.cover,
+              width: 300,
+            ),
+            TextButton(
+              onPressed: () {
+                showModalBottomSheet(
+                  isScrollControlled: true,
+                  context: context,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.only(
+                      topRight: Radius.circular(30),
+                      topLeft: Radius.circular(30),
                     ),
-                  ],
-                ),
-                Container(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 20.h, vertical: 15.h),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: EdgeInsets.only(top: 10.h),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
-                          border: Border.all(
-                            color: AppColors.grey,
-                            width: 2,
-                          ),
-                        ),
-                        child: Column(
-                          children: [
-                            Icon(
-                              Ionicons.person,
-                              size: 100.h,
-                              color: AppColors.grey,
-                            )
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        width: 15.h,
-                      ),
-                      Column(
+                  ),
+                  builder: (context) => SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.15,
+                    width: double.infinity,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                          vertical: 10.h, horizontal: 20.h),
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          ReusableText(
+                            text: 'Select Your Image From',
+                            style:
+                                appStyle(14, AppColors.black, FontWeight.bold),
+                          ),
                           SizedBox(
                             height: 10.h,
                           ),
                           Container(
-                            height: 9,
-                            width: 180,
+                            padding: EdgeInsets.symmetric(vertical: 10.h),
                             decoration: const BoxDecoration(
-                              color: AppColors.grey,
+                              color: AppColors.primary,
                               borderRadius: BorderRadius.all(
-                                Radius.circular(5),
+                                Radius.circular(10),
                               ),
                             ),
-                          ),
-                          SizedBox(
-                            height: 5.h,
-                          ),
-                          Container(
-                            height: 9,
-                            width: 120,
-                            decoration: const BoxDecoration(
-                              color: AppColors.grey,
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(5),
-                              ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  CupertinoIcons.camera,
+                                  color: AppColors.white,
+                                ),
+                                SizedBox(
+                                  width: 5.h,
+                                ),
+                                ReusableText(
+                                  text: 'Camera',
+                                  style: appStyle(
+                                      14, AppColors.white, FontWeight.w500),
+                                ),
+                              ],
                             ),
-                          ),
-                          SizedBox(
-                            height: 45.h,
-                          ),
-                          Container(
-                            height: 9,
-                            width: 130,
-                            decoration: const BoxDecoration(
-                              color: AppColors.grey,
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(5),
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 5.h,
-                          ),
-                          Container(
-                            height: 9,
-                            width: 150,
-                            decoration: const BoxDecoration(
-                              color: AppColors.grey,
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(5),
-                              ),
-                            ),
-                          ),
+                          )
                         ],
                       ),
-                    ],
+                    ),
                   ),
-                )
-              ],
+                );
+              },
+              style: TextButton.styleFrom(
+                backgroundColor: AppColors.primary,
+              ),
+              child: ReusableText(
+                text: 'Upload KTM',
+                style: appStyle(12, AppColors.white, FontWeight.bold),
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
   }
 }
+
+// Future _pickImageFromCamera() async {
+//   final returnImage = await ImagePicker().pickImage(source: ImageSource.camera);
+// }

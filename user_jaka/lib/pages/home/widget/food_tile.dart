@@ -1,47 +1,70 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+// import 'package:get/get.dart';
 import 'package:user_jaka/common/appstyle.dart';
 import 'package:user_jaka/common/reusable_text.dart';
 import 'package:user_jaka/constants/constants.dart';
-import 'package:user_jaka/constants/uidata.dart';
+import 'package:user_jaka/hooks/merchant_hooks.dart';
 import 'package:user_jaka/pages/merchant/merchant_page.dart';
+// import 'package:user_jaka/pages/merchant/merchant_page.dart';
 
 class FoodTile extends StatelessWidget {
-  const FoodTile({super.key, required this.food});
+  const FoodTile({
+    super.key,
+    required this.name,
+    required this.imageURL,
+    required this.price,
+    required this.foodId,
+  });
 
-  final dynamic food;
+  final String foodId;
+  final String price;
+  final String name;
+  final String imageURL;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        final merchantId = int.parse(food['merchant'].toString());
-        final merchant = merchants.firstWhere(
-            (merchant) => merchant['_id'] == merchantId,
-            orElse: () => null);
-
-        if (merchant != null) {
-          Get.to(() => MerchantPage(merchants: merchant));
-        } else {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Merchant Tidak Ditemukan'),
-                content: const Text(
-                    'Maaf, merchant untuk makanan ini tidak ditemukan.'),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('OK'),
-                  ),
-                ],
-              );
-            },
-          );
+      onTap: () async {
+        try {
+          Map<String, dynamic>? merchant =
+              await MerchantController().fetchMerchantByFood(foodId);
+          if (merchant != null) {
+            double ratings = merchant['ratings'] != null
+                ? merchant['ratings'].toDouble()
+                : 0.0;
+            Get.to(() => MerchantPage(
+                  merchantId: merchant['id'],
+                  name: merchant['name'],
+                  image: merchant['image_url'],
+                  address: merchant['address'].toString(),
+                  rating: ratings,
+                ));
+          } else {
+            if (!context.mounted) return;
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('Merchant Tidak Ditemukan'),
+                  content: const Text(
+                      'Maaf, merchant untuk makanan ini tidak ditemukan.'),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('OK'),
+                    ),
+                  ],
+                );
+              },
+            );
+          }
+        } catch (error) {
+          // print('Error fetching merchant details: $error');
+          return;
         }
       },
       child: Stack(
@@ -70,7 +93,7 @@ class FoodTile extends StatelessWidget {
                           width: 70.w,
                           height: 70.h,
                           child: Image.network(
-                            food['imageURL'],
+                            imageURL,
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -85,11 +108,11 @@ class FoodTile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       ReusableText(
-                        text: food['title'],
-                        style: appStyle(11, AppColors.black, FontWeight.w400),
+                        text: name,
+                        style: appStyle(14, AppColors.black, FontWeight.w400),
                       ),
                       ReusableText(
-                        text: "Delivery time: ${food['time']}",
+                        text: "Enakk",
                         style: appStyle(11, AppColors.grey, FontWeight.w400),
                       ),
                     ],
@@ -102,10 +125,7 @@ class FoodTile extends StatelessWidget {
             right: 5.w,
             top: 6.h,
             child: ReusableText(
-              text: 'Rp ${food['price'].toStringAsFixed(0).replaceAllMapped(
-                    RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-                    (Match match) => '${match[1]}.',
-                  )}',
+              text: 'Rp$price',
               style: appStyle(15, AppColors.primary, FontWeight.bold),
             ),
           ),

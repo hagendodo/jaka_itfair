@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:user_jaka/constants/constants.dart';
-import 'package:user_jaka/constants/uidata.dart';
 import 'package:user_jaka/pages/cart/cart_page.dart';
 import 'package:user_jaka/pages/history/history_page.dart';
 import 'package:user_jaka/pages/home/home_page.dart';
@@ -46,12 +45,9 @@ class _MainPageState extends State<MainPage> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Badge(
-              label: Text('${carts.length}'),
-              child: _selectedIndex == 1
-                  ? const Icon(CupertinoIcons.cart_fill)
-                  : const Icon(CupertinoIcons.cart),
-            ),
+            icon: _selectedIndex == 1
+                ? const Icon(CupertinoIcons.cart_fill)
+                : const Icon(CupertinoIcons.cart),
             label: 'Cart',
           ),
           BottomNavigationBarItem(

@@ -22,8 +22,8 @@ class DeliveryOrderItem extends StatelessWidget {
           title,
           style: appStyle(
             14,
-            AppColors.grey,
-            FontWeight.normal,
+            AppColors.white,
+            FontWeight.w600,
           ),
         ),
         const SizedBox(
@@ -33,7 +33,7 @@ class DeliveryOrderItem extends StatelessWidget {
           content,
           style: appStyle(
             13,
-            AppColors.black,
+            AppColors.white,
             FontWeight.normal,
           ),
         ),
@@ -42,7 +42,7 @@ class DeliveryOrderItem extends StatelessWidget {
         ),
         Container(
           padding: EdgeInsets.symmetric(vertical: 2.h),
-          height: 1,
+          height: 2,
           color: AppColors.grey,
         ),
       ],

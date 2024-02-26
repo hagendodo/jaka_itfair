@@ -16,7 +16,6 @@ class OnBoardingScreen extends StatefulWidget {
 }
 
 class _OnBoardingScreenState extends State<OnBoardingScreen> {
-  // Controller
   final PageController _controller = PageController();
   int _currentPageIndex = 0;
 

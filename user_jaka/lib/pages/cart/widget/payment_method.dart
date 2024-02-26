@@ -1,11 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
 import 'package:user_jaka/common/appstyle.dart';
 import 'package:user_jaka/common/reusable_text.dart';
 import 'package:user_jaka/constants/constants.dart';
-import 'package:user_jaka/controller/payment_method_controller.dart';
 
 class PaymentMenthod extends StatefulWidget {
   const PaymentMenthod({super.key});
@@ -15,7 +13,6 @@ class PaymentMenthod extends StatefulWidget {
 }
 
 class _PaymentMenthodState extends State<PaymentMenthod> {
-  final paymentController = Get.put((PaymentController()));
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -65,11 +62,9 @@ class _PaymentMenthodState extends State<PaymentMenthod> {
                       ],
                     ),
                     Checkbox(
-                      value: paymentController.isCashPayment.value,
+                      value: true,
                       onChanged: (value) {
-                        setState(() {
-                          paymentController.checkCash(value ?? false);
-                        });
+                        setState(() {});
                       },
                     )
                   ],
@@ -97,20 +92,46 @@ class _PaymentMenthodState extends State<PaymentMenthod> {
                         SizedBox(
                           width: 10.h,
                         ),
-                        ReusableText(
-                          text: 'Cashless',
-                          style: appStyle(15, AppColors.black, FontWeight.bold),
+                        RichText(
+                          text: TextSpan(
+                            text: '',
+                            style:
+                                appStyle(15, AppColors.black, FontWeight.bold),
+                            children: const <TextSpan>[
+                              TextSpan(
+                                text: 'Cashless ',
+                                style: TextStyle(
+                                    decoration: TextDecoration.lineThrough),
+                              ),
+                            ],
+                          ),
                         ),
+                        SizedBox(
+                          width: 5.h,
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: AppColors.grey,
+                            borderRadius: BorderRadius.circular(10.h),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 3.h, horizontal: 6.h),
+                          child: ReusableText(
+                            text: 'Soon',
+                            style: appStyle(
+                                12, AppColors.secondary, FontWeight.bold),
+                          ),
+                        )
                       ],
                     ),
-                    Checkbox(
-                      value: paymentController.isCashlessPayment.value,
-                      onChanged: (value) {
-                        setState(() {
-                          paymentController.checkCashless(value ?? false);
-                        });
-                      },
-                    )
+                    // Checkbox(
+                    //   value: paymentController.isCashlessPayment.value,
+                    //   onChanged: (value) {
+                    //     setState(() {
+                    //       paymentController.checkCashless(value ?? false);
+                    //     });
+                    //   },
+                    // )
                   ],
                 )
               ],

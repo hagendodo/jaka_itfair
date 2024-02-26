@@ -23,10 +23,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: PreferredSize(
-      //   preferredSize: Size.fromHeight(130.h),
-      //   child: const CustomAppbar(),
-      // ),
       appBar: AppBar(
         toolbarHeight: 74.h,
         elevation: 0,
@@ -62,7 +58,7 @@ class _HomePageState extends State<HomePage> {
                 text: "Merchant",
                 onTap: () {
                   Get.to(
-                    () => const AllKantin(),
+                    () => const AllMerchant(),
                     transition: Transition.cupertino,
                     duration: const Duration(milliseconds: 900),
                   );

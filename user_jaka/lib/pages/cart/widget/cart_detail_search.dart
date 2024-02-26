@@ -9,6 +9,7 @@ import 'package:user_jaka/common/reusable_text.dart';
 import 'package:user_jaka/constants/constants.dart';
 import 'package:user_jaka/pages/history/widget/delivery_order_item.dart';
 import 'package:user_jaka/pages/history/widget/order_detail_item.dart';
+import 'package:user_jaka/pages/main_page.dart';
 
 class CartDetailSearch extends StatelessWidget {
   const CartDetailSearch({super.key});
@@ -22,7 +23,7 @@ class CartDetailSearch extends StatelessWidget {
         elevation: 0,
         leading: GestureDetector(
           onTap: () {
-            Get.back();
+            Get.offAll(() => const MainPage());
           },
           child: const Icon(Icons.cancel),
         ),
@@ -132,7 +133,8 @@ class CartDetailSearch extends StatelessWidget {
               ),
               Container(
                 padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 10.h),
-                child: DotLottieLoader.fromAsset('assets/img/animation.lottie',
+                child: DotLottieLoader.fromAsset(
+                    'assets/img/preparing_order.lottie',
                     frameBuilder: (BuildContext ctx, DotLottie? dotlottie) {
                   if (dotlottie != null) {
                     return Lottie.memory(dotlottie.animations.values.single);
@@ -157,7 +159,7 @@ class CartDetailSearch extends StatelessWidget {
                   padding:
                       EdgeInsets.symmetric(horizontal: 20.h, vertical: 20.h),
                   decoration: const BoxDecoration(
-                    color: AppColors.white,
+                    color: AppColors.primary,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(40),
                       topRight: Radius.circular(40),
