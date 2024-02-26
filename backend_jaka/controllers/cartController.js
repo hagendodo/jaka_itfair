@@ -22,11 +22,16 @@ const getAllCart = async (req, res) => {
 const getAllCartByMerchant = async (req, res) => {
   try {
     if (!req.params.id) {
-      throw new Error("Please add query string user_id and merchant_id");
+      throw new Error("Please add params merchant id");
+    }
+
+    if (!req.query.user_id) {
+      throw new Error("Please add query string user_id");
     }
 
     const { data, error } = await cartService.getAllCartByMerchant(
-      req.params.id
+      req.params.id,
+      req.query.user_id
     );
 
     if (error) {

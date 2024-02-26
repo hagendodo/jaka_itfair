@@ -1,8 +1,17 @@
-import { collection, getDocs } from "firebase/firestore/lite";
 import { supabaseClient } from "../models/supabaseClient.js";
-import { doc, getFirestore } from "firebase/firestore";
+import {
+  doc,
+  getFirestore,
+  runTransaction,
+  collection,
+  getDocs,
+} from "firebase/firestore";
 import firebaseConfig from "../config/firebaseConfig.js";
 import { initializeApp } from "firebase/app";
+
+const app = initializeApp(firebaseConfig.firebaseConfig);
+
+const db = getFirestore(app);
 
 const calculateDistance = (point1, point2) => {
   const lat1 = point1.lat;
@@ -25,11 +34,7 @@ const calculateDistance = (point1, point2) => {
 };
 
 const pairingPenjamuWithOrder = async (myLocation, orderId) => {
-  const app = initializeApp(firebaseConfig.firebaseConfig);
-
-  const db = getFirestore(app);
-
-  const currentMapsCollection = doc(db, "current_maps");
+  const currentMapsCollection = collection(db, "current_maps");
   const currentMapSnapshot = await getDocs(currentMapsCollection);
   const currentMapList = currentMapSnapshot.docs.map((doc) => ({
     id: doc.id,
@@ -60,15 +65,18 @@ const pairingPenjamuWithOrder = async (myLocation, orderId) => {
 
     // Use transaction to delete the nearest location and insert it into a new collection
     const nearestLocationRef = doc(db, "current_maps", nearestLocation.id);
-    const newCollectionRef = doc(db, "temporary_orders");
-
+    const setTemporaryOrderRef = doc(
+      db,
+      "temporary_orders",
+      nearestLocation.id
+    );
     try {
       await runTransaction(db, async (transaction) => {
         // Delete the nearest location
         transaction.delete(nearestLocationRef);
 
         // Insert the nearest location into a new collection
-        transaction.set(newCollectionRef.doc(nearestLocation.id), {
+        transaction.set(setTemporaryOrderRef, {
           orderId: orderId,
           penjamuId: nearestLocation.id,
         });
@@ -162,7 +170,7 @@ const createOrder = async (x) => {
       .select()
       .eq("id", x.merchant_id);
 
-    const penjamuId = pairingPenjamuWithOrder(
+    const penjamuId = await pairingPenjamuWithOrder(
       {
         lat: parseFloat(merch.data[0].lat),
         lng: parseFloat(merch.data[0].lng),
@@ -171,6 +179,13 @@ const createOrder = async (x) => {
     );
 
     if (penjamuId === null) {
+      await supabaseClient
+        .from("orders")
+        .update({
+          status: "canceled",
+        })
+        .eq("id", orderData.id);
+
       return {
         data: null,
         error: "Tidak ada penjamu aktif saat ini",
@@ -189,6 +204,7 @@ const createOrder = async (x) => {
       .from("orders")
       .update({
         penjamu_id: penjamuId,
+        status: "active",
       })
       .eq("id", orderData.id);
 

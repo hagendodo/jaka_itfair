@@ -48,13 +48,14 @@ const getAllCart = async (queryString = null) => {
   }
 };
 
-const getAllCartByMerchant = async (id) => {
+const getAllCartByMerchant = async (id, user_id) => {
   try {
     const { data, error } = await supabaseClient
       .from("carts")
       .select(
         "id, merchants (id, name), products (id, name, price, image), quantity"
       )
+      .eq("user_id", user_id)
       .eq("merchant_id", id);
 
     const transformedData = data.reduce((acc, curr) => {
