@@ -108,14 +108,16 @@ const getAllHistoryOrder = async (queryString) => {
         .select(
           "id, address, total, status, notes, created_at, penjamus (id, name), users (id, name), detail_orders(products(id, name, image, merchant_id), price, quantity)"
         )
-        .eq(`detail_orders.products.merchant_id`, queryString.id);
+        .eq(`detail_orders.products.merchant_id`, queryString.id)
+        .order("created_at", { ascending: false });
     } else {
       return await supabaseClient
         .from("orders")
         .select(
           "id, address, total, status, notes, created_at, penjamus (id, name), users (id, name), detail_orders(products(id, name, image, merchants(id, name)), price, quantity)"
         )
-        .eq(`${queryString.type}_id`, queryString.id);
+        .eq(`${queryString.type}_id`, queryString.id)
+        .order("created_at", { ascending: false });
     }
   } catch (err) {
     return err;
