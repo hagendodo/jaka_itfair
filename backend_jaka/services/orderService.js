@@ -182,6 +182,7 @@ const createOrder = async (x) => {
         user_id: x.user_id,
         user_lat: parseFloat(x.lat),
         user_lng: parseFloat(x.lng),
+        address: x.address,
       })
       .select();
 
