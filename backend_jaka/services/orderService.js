@@ -189,7 +189,7 @@ const createOrder = async (x) => {
       .select();
 
     if (order.error) {
-      throw new Error(order.error);
+      throw new Error("KENAPA");
     }
 
     const orderData = order.data[0];
