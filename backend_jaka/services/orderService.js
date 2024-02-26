@@ -189,6 +189,10 @@ const createOrder = async (x) => {
       .select();
 
     if (order.error) {
+      return {
+        data: order,
+        error: null,
+      };
       throw new Error("KENAPA");
     }
 
