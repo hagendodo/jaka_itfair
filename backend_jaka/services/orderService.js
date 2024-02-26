@@ -232,7 +232,10 @@ const createOrder = async (x) => {
       templateMessageNotifToMerchant
     );
 
-    return null;
+    return {
+      data: null,
+      error: null,
+    };
   } catch (err) {
     console.log(err);
     throw new Error(err);
@@ -241,6 +244,20 @@ const createOrder = async (x) => {
 
 const matchingOrderToPenjamu = async (x) => {
   try {
+    if (x.status == "canceled") {
+      await supabaseClient
+        .from("orders")
+        .update({
+          status: "canceled",
+        })
+        .eq("id", x.order_id);
+
+      return {
+        data: null,
+        error: "Merchant menolak pesanan",
+      };
+    }
+
     const merch = await supabaseClient
       .from("merchants")
       .select()
@@ -267,7 +284,7 @@ const matchingOrderToPenjamu = async (x) => {
       })
       .eq("id", penjamuId);
 
-    await supabaseClient
+    const orderData = await supabaseClient
       .from("orders")
       .update({
         penjamu_id: penjamuId,
@@ -276,7 +293,8 @@ const matchingOrderToPenjamu = async (x) => {
       .eq("id", x.order_id)
       .select(
         "id, address, total, notes, created_at, penjamus (id, name), users (id, name), detail_orders(products(id, name, image), price)"
-      );
+      )
+      .single();
 
     const penjamu = await supabaseClient
       .from("penjamus")
@@ -288,7 +306,7 @@ const matchingOrderToPenjamu = async (x) => {
 
     Halo,
     
-    Kamu menerima pesanan baru untuk diproses. Silahkan cek aplikasi merchant.
+    Kamu menerima pesanan baru untuk diproses. Silahkan cek aplikasi Jaka.
     
     Nomor Pesanan: #${orderData.id}
     
@@ -319,17 +337,13 @@ const matchingOrderToPenjamu = async (x) => {
   }
 };
 
-/*
-
- 1. select active penjamu
- 2. choose penjamu
- 2. send confirmation take order and (detail order, destination coordinate) to penjamu
- 3. if decline, to step 2
- 4. change status penjamu to onDelivery
- 5. send notification to user and detail penjamu
- 6. 
-
-*/
+const checkOrderStatus = async (id) => {
+  return await supabaseClient
+    .from("orders")
+    .select("status")
+    .eq("id", id)
+    .single();
+};
 
 export default {
   getAllHistoryOrder,
@@ -337,4 +351,5 @@ export default {
   getHistoryOrderById,
   createOrder,
   matchingOrderToPenjamu,
+  checkOrderStatus,
 };
