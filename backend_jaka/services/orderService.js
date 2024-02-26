@@ -194,7 +194,7 @@ const createOrder = async (x) => {
 
     const orderData = order.data[0];
 
-    const totalPrice = 0;
+    let totalPrice = 0;
 
     x.products.forEach(async (element) => {
       const { error } = await supabaseClient.from("detail_orders").insert({
