@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class AuthManualMiddleware
+class OtpManualMiddleware
 {
     /**
      * Handle an incoming request.
@@ -15,14 +15,9 @@ class AuthManualMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if(!session('api_token')){
-            return redirect()->route('login.index');
+        if(session('is_activated') == true){
+            return redirect()->route('dashboard');
         }
-
-        if(session('is_activated') != true){
-            return redirect()->route('otp.index');
-        }
-
         return $next($request);
     }
 }

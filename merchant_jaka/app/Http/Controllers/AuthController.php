@@ -31,6 +31,7 @@ class AuthController extends Controller
             $request->session()->put('merchant_id', $userData['data']['user']['id']);
             $request->session()->put('merchant_name', $userData['data']['user']['name']);
             $request->session()->put('merchant_phone', $userData['data']['user']['phone']);
+            $request->session()->put('is_activated', $userData['data']['user']['is_activated']);
 
             if($userData['data']['user']['is_activated'] == null){
                 return redirect()->route('otp.index');
@@ -59,6 +60,7 @@ class AuthController extends Controller
 
         // Check if authentication was successful
         if ($response->ok()) {
+            $request->session()->put('is_activated', true);
             return redirect()->route('dashboard');
         } else {
             return redirect()->route('login.index')->with('error', 'Authentication failed');
