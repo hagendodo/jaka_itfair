@@ -102,12 +102,21 @@ const pairingPenjamuWithOrder = async (myLocation, orderId) => {
 
 const getAllHistoryOrder = async (queryString) => {
   try {
-    return await supabaseClient
-      .from("orders")
-      .select(
-        "id, address, total, status, notes, created_at, penjamus (id, name), users (id, name), detail_orders(products(id, name, image), price, quantity)"
-      )
-      .eq(`${queryString.type}_id`, queryString.id);
+    if (queryString.type == "merchant") {
+      return await supabaseClient
+        .from("orders")
+        .select(
+          "id, address, total, status, notes, created_at, penjamus (id, name), users (id, name), detail_orders(products(id, name, image, merchant_id), price, quantity)"
+        )
+        .eq(`detail_orders.products.merchant_id`, queryString.id);
+    } else {
+      return await supabaseClient
+        .from("orders")
+        .select(
+          "id, address, total, status, notes, created_at, penjamus (id, name), users (id, name), detail_orders(products(id, name, image, merchants(id, name)), price, quantity)"
+        )
+        .eq(`${queryString.type}_id`, queryString.id);
+    }
   } catch (err) {
     return err;
   }
@@ -182,6 +191,8 @@ const createOrder = async (x) => {
 
     const orderData = order.data[0];
 
+    const totalPrice = 0;
+
     x.products.forEach(async (element) => {
       const { error } = await supabaseClient.from("detail_orders").insert({
         order_id: orderData.id,
@@ -190,11 +201,20 @@ const createOrder = async (x) => {
         quantity: element.quantity,
       });
 
+      totalPrice += element.price * element.quantity;
+
       if (error) {
         console.log(error);
         throw new Error("Insert ke detail_orders nya gagal");
       }
     });
+
+    await supabaseClient
+      .from("orders")
+      .update({
+        total: totalPrice,
+      })
+      .eq("id", orderData.id);
 
     await supabaseClient
       .from("carts")
@@ -307,13 +327,15 @@ const matchingOrderToPenjamu = async (x) => {
       .eq("id", penjamuId)
       .single();
 
-    const templateMessageNotifToPenjamu = `📦 Pesanan Masuk
+    const templateMessageNotifToPenjamu = `📦 Pesanan Masuk, Siap untuk di antar
 
     Halo,
     
-    Kamu menerima pesanan baru untuk diproses. Silahkan cek aplikasi Jaka.
+    Kamu menerima pesanan baru untuk diantar. Silahkan cek aplikasi Jaka.
     
-    Nomor Pesanan: #${orderData.id}
+    Nomor Pesanan: #${x.order_id}
+    Nama Penerima: **${orderData.data.users.name}**
+    Alamat Pengantaran: **${orderData.data.address}**
     
     Silakan segera proses pesanan ini agar dapat memenuhi kebutuhan pelanggan kita dengan baik.
     

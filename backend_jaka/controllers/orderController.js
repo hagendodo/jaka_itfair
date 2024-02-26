@@ -3,6 +3,7 @@ import { responseType } from "../types/responseType.js";
 
 const getAllHistoryOrder = async (req, res) => {
   try {
+    console.log(req.query);
     if (!req.query.type || !req.query.id) {
       throw new Error("Pelase add query string type and id");
     }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\OrderController;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +15,10 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+Route::get('/', function () {
+    return redirect()->route('dashboard');
+});
 
 Route::get('/dashboard', function () {
 
@@ -43,5 +48,8 @@ Route::get('/logout/:token', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/otp', [AuthController::class, 'otp'])->name('otp.index');
 Route::post('/otp', [AuthController::class, 'doOtp'])->name('otp.do');
+
+Route::get('/order', [OrderController::class, 'index'])->name('order');
+Route::post('/matching', [OrderController::class, 'matching'])->name('orders.matching');
 
 Route::resource('/products', \App\Http\Controllers\ProductController::class);
