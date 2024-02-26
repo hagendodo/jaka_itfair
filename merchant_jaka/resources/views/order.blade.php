@@ -43,7 +43,7 @@
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
                                         <form method="POST"
-                                              action="{{ route('orders.decline', ['order' => $order['id']]) }}">
+                                              action="{{ route('orders.matching', ['order' => $order['id']]) }}">
                                             @csrf
                                             <div class="modal-header">
                                                 <h5 class="modal-title" id="exampleModalLabel">Terima Pesanan</h5>
@@ -53,30 +53,19 @@
                                                 </button>
                                             </div>
                                             <div class="modal-body">
+                                                <p>Apakah yakin ingin menghapus produk ini?</p>
                                                 <input type="text" name="merchant_id" value="{{session('merchant_id')}}"
                                                        hidden="hidden">
-                                                <div class="form-group">
-                                                    <label>Nama Product</label>
-                                                    <input type="text" class="form-control" name="name"
-                                                           value="{{$order['name']}}" required>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label>Harga</label>
-                                                    <input type="number" class="form-control" name="price"
-                                                           value="{{$order['price']}}" required>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label>Deskripsi</label>
-                                                    <textarea class="form-control" name="description"
-                                                              required>{{$order['description']}}</textarea>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label>Gambar Product</label>
-                                                    <input type="file" class="form-control" name="filename" required>
-                                                </div>
+                                                <input type="text" name="status" value="canceled"
+                                                       hidden="hidden">
+                                                <input type="text" name="order_id" value="{{$order['id']}}"
+                                                       hidden="hidden">
                                             </div>
                                             <div class="modal-footer">
-                                                <button type="submit" class="btn btn-primary">Simpan</button>
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                                    Batal
+                                                </button>
+                                                <button type="submit" class="btn btn-danger">Tolak</button>
                                             </div>
                                         </form>
                                     </div>
@@ -88,23 +77,36 @@
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="exampleModalLabel">Hapus Data</h5>
+                                            <h5 class="modal-title" id="exampleModalLabel">Terima Pesanan</h5>
                                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                 <span aria-hidden="true">&times;</span>
                                             </button>
                                         </div>
                                         <div class="modal-body">
-                                            <p>Apakah yakin ingin menghapus produk ini?</p>
+                                            <h3>{{$order['users']['name']}}</h3>
+                                            <p>{{$order['total']}}</p>
+                                            <p>Dikirim ke: {{$order['address']}}</p>
+
+                                            <ol>
+                                                @foreach($order['detail_orders'] as $detail)
+                                                    <li>{{$detail['products']['name']}} (</li>
+                                                @endforeach
+                                            </ol>
                                         </div>
                                         <div class="modal-footer">
                                             <form method="POST"
-                                                  action="{{ route('orders.destroy', ['order' => $order['id']]) }}">
+                                                  action="{{ route('orders.matching', ['order' => $order['id']]) }}">
                                                 @csrf
-                                                @method('DELETE')
+                                                <input type="text" name="merchant_id" value="{{session('merchant_id')}}"
+                                                       hidden="hidden">
+                                                <input type="text" name="status" value="active"
+                                                       hidden="hidden">
+                                                <input type="text" name="order_id" value="{{$order['id']}}"
+                                                       hidden="hidden">
                                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">
                                                     Batal
                                                 </button>
-                                                <button type="submit" class="btn btn-danger">Hapus</button>
+                                                <button type="submit" class="btn btn-success">Terima</button>
                                             </form>
                                         </div>
                                     </div>
