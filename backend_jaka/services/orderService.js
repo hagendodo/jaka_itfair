@@ -105,7 +105,7 @@ const getAllHistoryOrder = async (queryString) => {
     return await supabaseClient
       .from("orders")
       .select(
-        "id, address, total, notes, created_at, penjamus (id, name), users (id, name), detail_orders(products(id, name, image), price)"
+        "id, address, total, status, notes, created_at, penjamus (id, name), users (id, name), detail_orders(products(id, name, image), price)"
       )
       .eq(`${queryString.type}_id`, queryString.id);
   } catch (err) {

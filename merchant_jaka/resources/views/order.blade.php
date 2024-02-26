@@ -13,22 +13,28 @@
 
         <div class="container-fluid">
             <div class="row">
+                @php
+                    function formatDate($dateString) {
+                        $date = new DateTime($dateString);
+                        return $date->format('l, d - m - Y');
+                    }
+                @endphp
                 @foreach($orders as $order)
                     <div class="col-lg-3 col-md-4 col-sm-12">
                         <div class="card p-3">
                             <div class="card-body">
-                                <h3 class="card-title m-b-5">{{$order['user']}}</h3>
+                                <h3 class="card-title m-b-5">{{$order['user']['name']}}</h3>
                                 <h5 class="font-light">Rp. {{$order['total']}}</h5>
-                                <p>{{$order['description']}}</p>
+                                <p>{{formatDate($order['created_at'])}}</p>
                             </div>
                             <div class="text-right">
                                 <button type="button" class="btn btn-warning" data-toggle="modal"
                                         data-target="#editModal-{{$order['id']}}">
-                                    Edit
+                                    Tolak
                                 </button>
                                 <button type="button" class="btn btn-danger" data-toggle="modal"
                                         data-target="#hapusModal-{{$order['id']}}">
-                                    Hapus
+                                    Terima
                                 </button>
                             </div>
 
@@ -37,12 +43,10 @@
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
                                         <form method="POST"
-                                              action="{{ route('products.update', ['product' => $order['id']]) }}"
-                                              enctype="multipart/form-data">
+                                              action="{{ route('orders.decline', ['order' => $order['id']]) }}">
                                             @csrf
-                                            @method('PUT')
                                             <div class="modal-header">
-                                                <h5 class="modal-title" id="exampleModalLabel">Edit Data</h5>
+                                                <h5 class="modal-title" id="exampleModalLabel">Terima Pesanan</h5>
                                                 <button type="button" class="close" data-dismiss="modal"
                                                         aria-label="Close">
                                                     <span aria-hidden="true">&times;</span>
@@ -94,7 +98,7 @@
                                         </div>
                                         <div class="modal-footer">
                                             <form method="POST"
-                                                  action="{{ route('products.destroy', ['product' => $order['id']]) }}">
+                                                  action="{{ route('orders.destroy', ['order' => $order['id']]) }}">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">
