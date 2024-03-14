@@ -15,13 +15,15 @@ const CardHistory = () => {
         const fetchOrders = async () => {
             const type = 'penjamu';
             const id = await AsyncStorage.getItem('userId');
+            console.log('==ON HISTORY CARD==');
+            console.log('ID on Fetching: ', id);
 
             try {
                 const response = await axios.get(`https://jaka-itfair.vercel.app/api/v1/orders?type=${type}&id=${id}`);
                 setOrders(response.data.data); // Update to access the 'data' key
-                console.log(response.data); // Assuming the API response contains an array of orders
+                console.log('Response on Fetching: ', response.data); // Assuming the API response contains an array of orders
             } catch (error) {
-                console.error('Error fetching orders:', error);
+                console.error('Error fetching orders: ', error);
             }
         };
 
@@ -42,7 +44,7 @@ const CardHistory = () => {
                                     <Image source={require('../assets/images/user-profile.jpg')} style={styles.historyProfilePicture} />
                                     <View style={styles.historyProfileInfo}>
                                         <View>
-                                            <Text style={styles.profileTextBlack}>{order.users.name}</Text>
+                                            <Text style={styles.profileTextBlack}>{order?.users?.name}</Text>
                                             <Text style={styles.ProfileTextGrey}>Cash</Text>
                                         </View>
                                         <View style={styles.profileInfoEarn}>

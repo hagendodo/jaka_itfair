@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Image, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Image, Alert, ActivityIndicator, ToastAndroid } from 'react-native';
 import Colors from '../Constants/Colors';
 import Fonts from '../Constants/Fonts';
 import { TextInput } from 'react-native-element-textinput';
@@ -14,61 +14,58 @@ const LoginScreen = () => {
     const [isLoading, setIsLoading] = useState(false);
     const navigation = useNavigation();
 
-    const handleLogin = () => {
+    const handleLogin = async () => {
+        // Validate phone and password
         if (!phone || !password) {
-            Dialog.show({
-                type: ALERT_TYPE.DANGER,
-                title: 'Form ada yang belum terisi',
-                textBody: 'Isi formnya dengan benar yuk!',
-                button: 'Tutup',
-            });
+            ToastAndroid.showWithGravity('Form ada yang belum terisi', ToastAndroid.LONG, ToastAndroid.BOTTOM);
             return;
         }
 
         setIsLoading(true);
 
-        const userData = {
-            phone: phone,
-            password: password,
-            type: 'penjamu',
-        };
+        try {
+            const userData = {
+                phone,
+                password,
+                type: 'penjamu',
+            };
 
-        axios.post('https://jaka-itfair.vercel.app/api/v1/auth/login', userData)
-            .then(async (response) => {
-                console.log('Login successful:', response.data);
+            // Attempt login
+            const response = await axios.post('https://jaka-itfair.vercel.app/api/v1/auth/login', userData);
+            const responseData = response.data.data;
 
-                const userData = response.data.data; // Assuming the user data object contains the token
-                const id = userData.user.id;
-                const email = userData.user.email;
-                const name = userData.user.name;
-                const nim = userData.user.nim;
-                const token = userData.token;
+            // Check for missing user data or token in response
+            if (!responseData || !responseData.user || !responseData.token) {
+                throw new Error('Missing user data or token in response');
+            }
 
-                if (id && token) {
-                    await AsyncStorage.setItem('userToken', JSON.stringify(token));
-                    await AsyncStorage.setItem('userId', id.toString());
-                    await AsyncStorage.setItem('userEmail', email.toString());
-                    await AsyncStorage.setItem('userName', name.toString());
-                    await AsyncStorage.setItem('userNIM', nim.toString());
-                    await AsyncStorage.setItem('userPhone', phone.toString());
-                    console.log('Data stored successfully.');
-                    navigation.navigate('AppStack');
-                } else {
-                    console.error('User ID or token is missing in the response data.');
-                }
-            })
-            .catch(error => {
-                console.error('Login failed:', error);
-                Dialog.show({
-                    type: ALERT_TYPE.WARNING,
-                    title: 'Login Gagal',
-                    textBody: ' Nomor whatsapp atau password salah. Mohon coba lagi.',
-                    button: 'Coba Lagi',
-                });
-            })
-            .finally(() => {
-                setIsLoading(false);
+            // Extract user data and token
+            const { user, token } = responseData;
+            const { id, email, name, nim } = user;
+
+            // Store user data in AsyncStorage
+            await AsyncStorage.multiSet([
+                ['userToken', JSON.stringify(token)],
+                ['userId', id.toString()],
+                ['userEmail', email.toString()],
+                ['userName', name.toString()],
+                ['userNIM', nim.toString()],
+                ['userPhone', phone.toString()],
+            ]);
+
+            console.log('Data stored successfully.');
+
+            // Navigate to AppStack
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'AppStack' }],
             });
+        } catch (error) {
+            console.error('Login failed:', error);
+            ToastAndroid.showWithGravity('Nomor whatsapp atau password salah. Mohon coba lagi.', ToastAndroid.LONG, ToastAndroid.BOTTOM);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -132,51 +129,54 @@ const LoginScreen = () => {
     )
 }
 
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 const styles = StyleSheet.create({
     container: {
+        flex: 1,
         alignItems: 'center',
     },
     imageBehind: {
         backgroundColor: Colors.PRIMARY,
-        height: Dimensions.get('window').height - 650,
+        height: windowHeight * 0.3,
     },
     image: {
-        width: Dimensions.get('window').width,
-        height: Dimensions.get('window').height - 750,
-        top: 100,
+        width: windowWidth,
+        height: windowHeight * 0.15,
+        top: windowHeight * 0.15,
     },
     contentContainer: {
         backgroundColor: Colors.WHITE,
-        width: Dimensions.get('window').width - 30,
+        width: windowWidth - 30,
         height: 'auto',
         elevation: 5,
-        top: -50,
+        top: -windowHeight * 0.05,
         borderRadius: 15,
     },
     backgroundImageContainer: {
         borderTopLeftRadius: 15,
         borderTopRightRadius: 15,
+        overflow: 'hidden',
     },
     signUpContainer: {
         padding: 20,
     },
     textContainer: {
-        display: 'flex',
         flexDirection: 'row',
-        width: '90%',
-        paddingHorizontal: 25,
-        paddingTop: 20,
+        width: '100%',
+        paddingHorizontal: windowWidth * 0.05,
+        paddingTop: windowHeight * 0.02,
     },
     signUpText: {
         fontFamily: Fonts.black,
-        fontSize: 35,
+        fontSize: windowWidth * 0.09,
         color: Colors.BLACK,
     },
     headerText: {
-        fontFamily: Fonts.regular
+        fontFamily: Fonts.regular,
     },
     input: {
-        height: 50,
+        height: windowHeight * 0.06,
         paddingHorizontal: 10,
         borderRadius: 10,
         backgroundColor: Colors.WHITE,
@@ -188,18 +188,28 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowRadius: 1.41,
         elevation: 2,
-        marginVertical: 5,
+        marginVertical: windowHeight * 0.01,
+        width: '100%',
     },
-    inputStyle: { fontFamily: Fonts.regular, fontSize: 15 },
-    placeholderStyle: { fontFamily: Fonts.regular, fontSize: 15 },
-    textErrorStyle: { fontFamily: Fonts.regular, fontSize: 15 },
+    inputStyle: {
+        fontFamily: Fonts.regular,
+        fontSize: windowWidth * 0.04,
+    },
+    placeholderStyle: {
+        fontFamily: Fonts.regular,
+        fontSize: windowWidth * 0.04,
+    },
+    textErrorStyle: {
+        fontFamily: Fonts.regular,
+        fontSize: windowWidth * 0.04,
+    },
     signUpButtonContainer: {
         alignItems: 'center',
-        marginTop: 15,
+        marginTop: windowHeight * 0.015,
     },
     signUpButton: {
-        width: Dimensions.get('window').width - 70,
-        height: 50,
+        width: windowWidth - 70,
+        height: windowHeight * 0.06,
         borderRadius: 10,
         backgroundColor: Colors.PRIMARY,
         alignItems: 'center',
@@ -209,12 +219,10 @@ const styles = StyleSheet.create({
     signUpButtonText: {
         fontFamily: Fonts.bold,
         color: Colors.WHITE,
-        fontSize: 18,
+        fontSize: windowWidth * 0.05,
     },
     loginButtonContainer: {
         alignItems: 'center',
-        justifyContent: 'flex-end',
-        height: Dimensions.get('window').height - 630,
     },
     loginDefaultText: {
         fontFamily: Fonts.regular,

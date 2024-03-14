@@ -8,7 +8,8 @@ import {
     View,
     Platform,
     Linking,
-    PermissionsAndroid
+    PermissionsAndroid,
+    Dimensions
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
@@ -322,72 +323,75 @@ const Settings = () => {
     );
 };
 
+const { width, height } = Dimensions.get('window');
+
 const styles = StyleSheet.create({
     container: {
-        width: '100%',
-        height: '100%',
+        flex: 1,
     },
     profileContainer: {
-        backgroundColor: Colors.WHITE,
-        padding: 15,
-        display: 'flex',
+        backgroundColor: 'white',
+        paddingVertical: height * 0.01,
+        paddingHorizontal: width * 0.05,
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 15,
         borderBottomWidth: 0.5,
+        borderBottomColor: 'gray',
     },
     profilePicture: {
-        borderRadius: 50,
-        width: 50,
-        height: 50,
+        borderRadius: width * 0.1,
+        width: width * 0.2,
+        height: width * 0.2,
     },
     textContainer: {
-        display: 'flex',
+        flex: 1,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+        marginLeft: width * 0.05,
     },
     textStyle: {
         fontFamily: Fonts.semibold,
-        color: Colors.BLACK,
-        fontSize: 18,
+        color: 'black',
+        fontSize: width * 0.05,
     },
     settingsContainer: {
-        backgroundColor: Colors.WHITE,
-        paddingVertical: 10,
-        paddingHorizontal: 15,
-        display: 'flex',
+        backgroundColor: 'white',
+        paddingVertical: height * 0.012,
+        paddingHorizontal: width * 0.05,
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
         borderBottomWidth: 0.5,
-        borderBottomColor: Colors.GREY,
+        borderBottomColor: 'gray',
     },
     iconContainer: {
-        width: 35,
-        height: 35,
+        width: width * 0.11,
+        height: width * 0.11,
         justifyContent: 'center',
         alignItems: 'center',
-        borderRadius: 10,
+        borderRadius: width * 0.04,
     },
     settingsTextStyle: {
         fontFamily: Fonts.semibold,
-        color: Colors.BLACK,
-        fontSize: 15,
+        color: 'black',
+        fontSize: width * 0.035,
+        flex: 1,
+        marginLeft: width * 0.05,
     },
     bottomSheetContainer: {
+        paddingHorizontal: width * 0.05,
+        paddingBottom: height * 0.02,
     },
     switchContainerStyle: {
-        width: 45,
-        height: 25,
-        borderRadius: 20,
-        padding: 3,
+        width: width * 0.15,
+        height: height * 0.05,
+        borderRadius: width * 0.1,
+        padding: width * 0.015,
     },
     switchCircleStyle: {
-        width: 18,
-        height: 18,
-        borderRadius: 50,
+        width: width * 0.045,
+        height: width * 0.045,
+        borderRadius: width * 0.025,
     },
 });
-
 export default Settings;

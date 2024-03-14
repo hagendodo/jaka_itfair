@@ -38,7 +38,8 @@ const WaitingScreen = () => {
     useEffect(() => {
         const checkVerification = async () => {
             try {
-                console.log(NIM);
+                console.log('==ON WAITING SCREEN==');
+                console.log('Print NIM: ', NIM);
                 const response = await axios.post('https://jaka-itfair.vercel.app/api/v1/auth/check-verify', { nim: NIM });
                 console.log('Verification status:', response.data);
                 if (response.data.data.is_verified !== null) {

@@ -36,9 +36,10 @@ const OTPScreen = ({ navigation, route }) => {
         };
 
         try {
-            console.log(NIM);
+            console.log('==ON OTPSCREEN==');
+            console.log('Print NIM: ', NIM);
             const response = await axios.post('https://jaka-itfair.vercel.app/api/v1/auth/verify-otp', userOTP);
-            console.log('User OTP:', userOTP);
+            console.log('Print User OTP:', userOTP);
             console.log('Verification successful:', response.data);
             navigation.navigate('VerfikasiKTM');
         } catch (error) {

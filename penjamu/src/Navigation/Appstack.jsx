@@ -54,8 +54,8 @@ const Appstack = () => {
                     ),
                 }}
             />
-            <Drawer.Screen name="Chat" component={ChatScreen} />
-            <Drawer.Screen name="DetailOrder" component={DetailOrder} />
+            <Drawer.Screen name="Chat" component={ChatScreen} options={{ drawerLabel: () => null }} />
+            <Drawer.Screen name="DetailOrder" component={DetailOrder} options={{ drawerLabel: () => null }} />
             <Drawer.Screen name="AuthStack" component={AuthStack} options={{ drawerLabel: () => null }} />
         </Drawer.Navigator>
     );

@@ -18,7 +18,8 @@ const Header = (props) => {
         const fetchUserId = async () => {
             try {
                 const id = await AsyncStorage.getItem('userId');
-                console.log(id);
+                console.log('==ON HEADER COMPONENT==');
+                console.log('ID on Fetching',id);
                 if (id) {
                     setUserId(id);
                 }
@@ -37,20 +38,20 @@ const Header = (props) => {
             try {
                 if (isEnabled) { // Check if the switch is enabled
                     const response = await axios.get(`https://jaka-itfair.vercel.app/api/v1/penjamu-activities/check-order/${userId}`);
-                    console.log(response.data);
+                    console.log('==ON HEADER COMPONENT==');
+                    console.log('Response on Fetching: ',response.data);
                     if (response.data.status === 'order') {
                         navigation.navigate('DetailOrder');
                     }
                 }
             } catch (error) {
-                console.error('Error checking for new order:', error);
+                console.error('Error checking for new order: ', error);
             }
         };
 
         if (isEnabled) {
             interval = setInterval(checkForNewOrder, 15000); // Check every 15 seconds
         } else {
-            // Clear the interval when the switch is disabled or component unmounts
             clearInterval(interval);
         }
 
@@ -62,12 +63,13 @@ const Header = (props) => {
         const fetchStatus = async () => {
             try {
                 const status = await AsyncStorage.getItem('onlineStatus');
-                console.log(status);
+                console.log('==ON HEADER COMPONENT==');
+                console.log('Status on Fetching: ',status);
                 if (status) {
                     setIsEnabled(true);
                 }
             } catch (error) {
-                console.error('Error retrieving status:', error);
+                console.error('Error retrieving status: ', error);
             }
         };
 
@@ -79,10 +81,12 @@ const Header = (props) => {
             if (isEnabled) {
                 const response = await axios.post(`https://jaka-itfair.vercel.app/api/v1/penjamu-activities/${isEnabled ? 'deactivate' : 'activate'}/${userId}`);
                 await AsyncStorage.removeItem('onlineStatus');
-                console.log(response.data);
+                console.log('==ON HEADER COMPONENT==');
+                console.log('Response Toggle',response.data);
             } else {
                 const response = await axios.post(`https://jaka-itfair.vercel.app/api/v1/penjamu-activities/${isEnabled ? 'deactivate' : 'activate'}/${userId}`);
-                console.log(response.data);
+                console.log('==ON HEADER COMPONENT==');
+                console.log('Response Toggle', response.data);
                 await AsyncStorage.setItem('onlineStatus', JSON.stringify(response.data.message));
             }
             setIsEnabled(previousState => !previousState);
