@@ -1,6 +1,9 @@
+import * as dotenv from "dotenv";
+dotenv.config();
+
 const sendOtpToWhatsapp = async (otp, recipient) => {
   const url = "https://api.fonnte.com/send";
-  const token = "6rCgYLQ_Ckdh3Pg@JyxM";
+  const token = process.env.FONNTE_WHATSAPP_TOKEN;
   const data = {
     target: recipient,
     message: `🔐 Kode Verifikasi Anda
@@ -37,7 +40,7 @@ const sendOtpToWhatsapp = async (otp, recipient) => {
 
 const sendMessageToWhatsapp = async (recipient, message) => {
   const url = "https://api.fonnte.com/send";
-  const token = "6rCgYLQ_Ckdh3Pg@JyxM";
+  const token = process.env.FONNTE_WHATSAPP_TOKEN;
   const data = {
     target: recipient,
     message: message,

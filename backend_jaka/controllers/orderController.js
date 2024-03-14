@@ -9,7 +9,7 @@ const getAllHistoryOrder = async (req, res) => {
     }
 
     const { data, error } = await orderService.getAllHistoryOrder(req.query);
-
+    console.log(error);
     if (error) {
       throw new Error(error);
     }
