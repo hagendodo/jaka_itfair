@@ -9,7 +9,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProfileStack = () => {
     const [name, setName] = useState('');
-    console.log(name);
+    console.log('==ON PROFILE STACK COMPONENT==');
+    console.log('Print Name on Profile Stack', name);
 
     useEffect(() => {
         const fetchUserName = async () => {

@@ -64,14 +64,16 @@ const RegisterScreen = () => {
             .then(() => {
                 axios.post('https://jaka-itfair.vercel.app/api/v1/auth/register', userData)
                     .then(response => {
-                        console.log('User Data:', userData);
-                        console.log('Registration successful:', response.data);
+                        console.log('==ON REGISTER SCREEN==');
+                        console.log('User Data: ', userData);
+                        console.log('Registration successful: ', response.data);
                         console.log(nim);
                         navigation.navigate('OTP');
                     })
                     .catch(error => {
-                        console.error('User Data:', userData);
-                        console.error('Registration failed:', error);
+                        console.log('==ON REGISTER SCREEN==');
+                        console.error('User Data: ', userData);
+                        console.error('Registration failed: ', error);
                         ToastAndroid.showWithGravity('Pendaftaran Gagal', ToastAndroid.LONG, ToastAndroid.BOTTOM);
                     })
                     .finally(() => {
@@ -229,7 +231,6 @@ const styles = StyleSheet.create({
     imageBackground: {
         width: windowWidth,
         height: windowHeight * 0.15,
-        top: windowHeight * 0.04,
     },
     textContainer: {
         display: 'flex',

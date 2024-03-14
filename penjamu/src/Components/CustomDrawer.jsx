@@ -21,11 +21,12 @@ const CustomDrawer = (props) => {
                 const storedToken = await AsyncStorage.getItem('userToken');
                 if (storedToken !== null) {
                     const parsedToken = JSON.parse(storedToken);
-                    console.log(parsedToken);
+                    console.log('==ON CUSTOM DRAWER COMPONENT==');
+                    console.log('Parsed Token on Fetching: ', parsedToken);
                     setToken(parsedToken);
                 }
             } catch (error) {
-                console.error('Error fetching token:', error);
+                console.error('Error fetching token: ', error);
             }
         };
 
@@ -59,7 +60,7 @@ const CustomDrawer = (props) => {
     }, []);
 
     const handleSignOut = async () => {
-        console.log(token);
+        console.log('TOKEN on LOGOUT', token);
         try {
             // const requestBody = {
             //     token: token,
@@ -129,10 +130,9 @@ const styles = StyleSheet.create({
     },
     profileContainer: {
         flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
         paddingRight: 15,
         marginBottom: 20,
+        paddingLeft: 15,
     },
     profileImage: {
         height: 55,

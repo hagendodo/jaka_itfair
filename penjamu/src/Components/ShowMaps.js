@@ -47,7 +47,8 @@ export default class ShowMaps extends Component {
             if (location && location.coords) {
                 this.setState({ userLocation: location });
 
-                console.log(location);
+                console.log('==ON SHOW MAPS COMPONENT==');
+                console.log('Print Location: ', location);
 
                 const destination = [107.71827852260127, -6.931061755325668];
                 const response = await fetch(`https://api.mapbox.com/directions/v5/mapbox/driving/${location.coords.longitude},${location.coords.latitude};${destination[0]},${destination[1]}?geometries=geojson&access_token=pk.eyJ1Ijoib2phbmFqYTAzIiwiYSI6ImNsczJmdnFmcDBpbWUya29lMXo3YjZhOW4ifQ.BNLM-X1rsyOLt_EA7xfrlw`);
@@ -61,7 +62,7 @@ export default class ShowMaps extends Component {
                     lng: location.coords.latitude,
                 };
                 const resp = await axios.post('https://jaka-itfair.vercel.app/api/v1/penjamu-activities/update-position', bodyRequest);
-                console.log(resp.data);
+                console.log('Response on Fetching: ', resp.data);
             } else {
                 console.warn('Invalid location data:', location);
             }
