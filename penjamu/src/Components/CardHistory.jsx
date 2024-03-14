@@ -15,6 +15,7 @@ const CardHistory = () => {
         const fetchOrders = async () => {
             const type = 'penjamu';
             const id = await AsyncStorage.getItem('userId');
+            console.log('history card', id);
 
             try {
                 const response = await axios.get(`https://jaka-itfair.vercel.app/api/v1/orders?type=${type}&id=${id}`);
@@ -42,7 +43,7 @@ const CardHistory = () => {
                                     <Image source={require('../assets/images/user-profile.jpg')} style={styles.historyProfilePicture} />
                                     <View style={styles.historyProfileInfo}>
                                         <View>
-                                            <Text style={styles.profileTextBlack}>{order.users.name}</Text>
+                                            <Text style={styles.profileTextBlack}>{order?.users?.name}</Text>
                                             <Text style={styles.ProfileTextGrey}>Cash</Text>
                                         </View>
                                         <View style={styles.profileInfoEarn}>

@@ -1,100 +1,99 @@
-/* eslint-disable react-native/no-inline-styles */
-import { View, Text, StyleSheet, Dimensions, Image, TouchableOpacity, KeyboardAvoidingView, ScrollView, ActivityIndicator } from 'react-native';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { View, Text, StyleSheet, Dimensions, ImageBackground, Image, TouchableOpacity, KeyboardAvoidingView, ScrollView, ActivityIndicator, ToastAndroid } from 'react-native'
+import React, { useState } from 'react';
 import Colors from '../Constants/Colors';
 import Fonts from '../Constants/Fonts';
 import { useNavigation } from '@react-navigation/native';
 import { TextInput } from 'react-native-element-textinput';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ALERT_TYPE, Dialog, AlertNotificationRoot } from 'react-native-alert-notification';
-import BottomSheet from '@gorhom/bottom-sheet';
-import ShowMaps from '../Components/ShowMaps';
+import { ALERT_TYPE, Dialog, AlertNotificationRoot, Toast } from 'react-native-alert-notification';
 
-const DetailOrder = () => {
+const RegisterScreen = () => {
     const [name, setName] = useState('');
+    const [nim, setNim] = useState('');
+    const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
-    const [address, setAddress] = useState('');
-    const [lat, setLat] = useState(null);
-    const [lng, setLng] = useState(null);
-
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false); // New state variable
     const navigation = useNavigation();
-    const bottomSheetRef = useRef(null);
-    const snapPoints = useMemo(() => ['100%', '100%'], []);
-
-    const handleSheetChanges = useCallback((index) => {
-        console.log('handleSheetChanges', index);
-    }, []);
-
-    const closeBottomSheet = () => {
-        bottomSheetRef.current?.close();
-    };
 
     const handleRegister = () => {
-        if (!name || !phone || !password) {
-            Dialog.show({
-                type: ALERT_TYPE.DANGER,
-                title: 'Form ada yang belum terisi',
-                textBody: 'Isi formnya dengan benar yuk!',
-                button: 'close',
-            });
+        // Regular expressions for validation
+        const phoneRegex = /^\d{10,12}$/; // 10 to 12 digits for phone number
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Email format validation
+        const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/; // Password format validation
+
+        if (!name || !nim || !email || !phone || !password || !confirmPassword) {
+            ToastAndroid.showWithGravity('Form ada yang belum terisi', ToastAndroid.LONG, ToastAndroid.BOTTOM);
+            return;
+        }
+
+        if (!phone.match(phoneRegex)) {
+            ToastAndroid.showWithGravity('Format Nomor Whatsapp tidak valid', ToastAndroid.LONG, ToastAndroid.BOTTOM);
+            return;
+        }
+
+        if (!email.match(emailRegex)) {
+            ToastAndroid.showWithGravity('Format Alamat Email tidak valid', ToastAndroid.LONG, ToastAndroid.BOTTOM);
+            return;
+        }
+
+        if (!password.match(passwordRegex)) {
+            ToastAndroid.showWithGravity('Format Kata Sandi tidak valid', ToastAndroid.LONG, ToastAndroid.BOTTOM);
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            ToastAndroid.showWithGravity('Konfirmasi Kata Sandi tidak cocok', ToastAndroid.LONG, ToastAndroid.BOTTOM);
             return;
         }
 
         setIsLoading(true);
-        setIsBottomSheetOpen(true); // Open the bottom sheet
-    };
 
-    const handleBottomSheetClose = async (coordinates) => {
-        setLat(coordinates.latitude);
-        setLng(coordinates.longitude);
-        console.log(coordinates.latitude);
-        console.log(coordinates.longitude);
-        closeBottomSheet();
-
-        if (coordinates.latitude !== null && coordinates.longitude !== null) {
-            await postUserData(coordinates.latitude, coordinates.longitude);
-        } else {
-            console.log('Latitude or longitude is null, not posting user data.');
-        }
-    };
-
-    const postUserData = async (plat, plng) => {
         const userData = {
             name: name,
+            nim: nim,
+            email: email,
             phone: phone,
             password: password,
-            address: address,
-            lat: plat,
-            lng: plng,
-            type: 'merchant',
+            type: 'penjamu',
         };
 
-        try {
-            await AsyncStorage.setItem('userData', JSON.stringify(userData.phone));
-            const response = await axios.post('https://jaka-itfair.vercel.app/api/v1/auth/register', userData);
-            console.log('User Data:', userData);
-            console.log('Registration successful:', response.data);
-            navigation.navigate('OTP');
-        } catch (error) {
-            console.error('User Data:', userData);
-            console.error('Registration failed:', error);
-        } finally {
-            setIsLoading(false);
-        }
+        AsyncStorage.setItem('userDataNIM', JSON.stringify(userData.nim))
+            .then(() => {
+                axios.post('https://jaka-itfair.vercel.app/api/v1/auth/register', userData)
+                    .then(response => {
+                        console.log('User Data:', userData);
+                        console.log('Registration successful:', response.data);
+                        console.log(nim);
+                        navigation.navigate('OTP');
+                    })
+                    .catch(error => {
+                        console.error('User Data:', userData);
+                        console.error('Registration failed:', error);
+                        ToastAndroid.showWithGravity('Pendaftaran Gagal', ToastAndroid.LONG, ToastAndroid.BOTTOM);
+                    })
+                    .finally(() => {
+                        setIsLoading(false);
+                    });
+            })
+            .catch(error => {
+                console.error('Error storing user data:', error);
+                setIsLoading(false);
+            });
     };
 
     return (
         <AlertNotificationRoot>
-            <KeyboardAvoidingView style={{ flex: 1 }}>
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+            >
                 <ScrollView contentContainerStyle={styles.container}>
                     <View style={styles.contentContainer}>
                         <View style={styles.backgroundImageContainer}>
                             <View style={styles.textContainer}>
-                                <Text style={styles.signUpText}>Buat Akun<Text style={styles.headerText}> menggunakan nomor WhatsApp</Text></Text>
+                                <Text style={styles.signUpText}>Daftar<Text style={styles.headerText}> dengan email dan Nomor Whatsapp</Text></Text>
                             </View>
                             <Image style={styles.imageBackground} source={require('../assets/images/Background.png')} />
                         </View>
@@ -107,23 +106,36 @@ const DetailOrder = () => {
                                     inputStyle={styles.inputStyle}
                                     placeholderStyle={styles.placeholderStyle}
                                     textErrorStyle={styles.textErrorStyle}
-                                    placeholder="Nama Toko"
+                                    placeholder="Nama Lengkap"
                                     placeholderTextColor={Colors.GREY}
                                     onChangeText={text => {
                                         setName(text);
                                     }}
                                 />
                                 <TextInput
-                                    inputMode="text"
-                                    value={address}
+                                    inputMode="numeric"
+                                    value={nim}
                                     style={styles.input}
                                     inputStyle={styles.inputStyle}
                                     placeholderStyle={styles.placeholderStyle}
                                     textErrorStyle={styles.textErrorStyle}
-                                    placeholder="Alamat"
+                                    placeholder="NIM"
                                     placeholderTextColor={Colors.GREY}
                                     onChangeText={text => {
-                                        setAddress(text);
+                                        setNim(text);
+                                    }}
+                                />
+                                <TextInput
+                                    inputMode="email"
+                                    value={email}
+                                    style={styles.input}
+                                    inputStyle={styles.inputStyle}
+                                    placeholderStyle={styles.placeholderStyle}
+                                    textErrorStyle={styles.textErrorStyle}
+                                    placeholder="Alamat Email"
+                                    placeholderTextColor={Colors.GREY}
+                                    onChangeText={text => {
+                                        setEmail(text);
                                     }}
                                 />
                                 <TextInput
@@ -133,7 +145,7 @@ const DetailOrder = () => {
                                     inputStyle={styles.inputStyle}
                                     placeholderStyle={styles.placeholderStyle}
                                     textErrorStyle={styles.textErrorStyle}
-                                    placeholder="Nomer Whatsapp"
+                                    placeholder="Nomor Whatsapp"
                                     placeholderTextColor={Colors.GREY}
                                     onChangeText={text => {
                                         setPhone(text);
@@ -146,10 +158,23 @@ const DetailOrder = () => {
                                     inputStyle={styles.inputStyle}
                                     placeholderStyle={styles.placeholderStyle}
                                     textErrorStyle={styles.textErrorStyle}
-                                    placeholder="Password"
+                                    placeholder="Kata Sandi"
                                     placeholderTextColor={Colors.GREY}
                                     onChangeText={text => {
                                         setPassword(text);
+                                    }}
+                                />
+                                <TextInput
+                                    mode="password"
+                                    value={confirmPassword}
+                                    style={styles.input}
+                                    inputStyle={styles.inputStyle}
+                                    placeholderStyle={styles.placeholderStyle}
+                                    textErrorStyle={styles.textErrorStyle}
+                                    placeholder="Konfirmasi Kata Sandi"
+                                    placeholderTextColor={Colors.GREY}
+                                    onChangeText={text => {
+                                        setConfirmPassword(text);
                                     }}
                                 />
                             </View>
@@ -168,72 +193,60 @@ const DetailOrder = () => {
                         <Text style={styles.loginDefaultText}>Sudah punya akun? <Text style={styles.loginBoldText}>Masuk</Text></Text>
                     </TouchableOpacity>
                 </ScrollView>
-                {isBottomSheetOpen && ( // Conditionally render the bottom sheet
-                    <BottomSheet
-                        ref={bottomSheetRef}
-                        index={0}
-                        snapPoints={snapPoints}
-                        onChange={handleSheetChanges}
-                        animateOnMount={true}
-                        enableOverDrag={true}
-                        enablePanDownToClose={true}
-                    >
-                        <ShowMaps closeBottomSheet={handleBottomSheetClose} />
-                    </BottomSheet>
-                )}
             </KeyboardAvoidingView>
         </AlertNotificationRoot>
     );
 };
 
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
+
 const styles = StyleSheet.create({
     container: {
-        padding: 15,
-        top: Dimensions.get('window').height - 870,
+        padding: 0.01 * windowHeight,
         alignItems: 'center',
-        justifyContent: 'center',
-        height: 'auto',
     },
     contentContainer: {
         backgroundColor: Colors.WHITE,
-        width: Dimensions.get('window').width - 30,
+        width: windowWidth - 30,
         height: 'auto',
         elevation: 5,
         borderRadius: 15,
     },
     backgroundImageContainer: {
-        height: '40%',
+        height: 0.35 * windowHeight,
         backgroundColor: Colors.PRIMARY,
         borderTopLeftRadius: 15,
         borderTopRightRadius: 15,
+        overflow: 'hidden',
     },
     signUpContainer: {
         backgroundColor: Colors.WHITE,
-        padding: 20,
+        padding: 0.02 * windowHeight,
         borderBottomLeftRadius: 15,
         borderBottomRightRadius: 15,
     },
     imageBackground: {
-        width: Dimensions.get('window').width - 650,
-        height: Dimensions.get('window').height - 790,
-        top: 15,
+        width: windowWidth,
+        height: windowHeight * 0.15,
+        top: windowHeight * 0.04,
     },
     textContainer: {
         display: 'flex',
         flexDirection: 'row',
         width: '90%',
-        padding: 25,
+        padding: 0.033 * windowHeight,
     },
     signUpText: {
         fontFamily: Fonts.black,
-        fontSize: 35,
+        fontSize: 0.04 * windowHeight,
         color: Colors.WHITE,
     },
     headerText: {
         fontFamily: Fonts.regular,
     },
     input: {
-        height: 50,
+        height: windowHeight * 0.06,
         paddingHorizontal: 10,
         borderRadius: 10,
         backgroundColor: Colors.WHITE,
@@ -245,18 +258,28 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowRadius: 1.41,
         elevation: 2,
-        marginVertical: 5,
+        marginVertical: windowHeight * 0.01,
+        width: '100%',
     },
-    inputStyle: { fontFamily: Fonts.regular, fontSize: 15 },
-    placeholderStyle: { fontFamily: Fonts.regular, fontSize: 15 },
-    textErrorStyle: { fontFamily: Fonts.regular, fontSize: 15 },
+    inputStyle: {
+        fontFamily: Fonts.regular,
+        fontSize: windowWidth * 0.04,
+    },
+    placeholderStyle: {
+        fontFamily: Fonts.regular,
+        fontSize: windowWidth * 0.04,
+    },
+    textErrorStyle: {
+        fontFamily: Fonts.regular,
+        fontSize: windowWidth * 0.04,
+    },
     signUpButtonContainer: {
         alignItems: 'center',
-        marginTop: 15,
+        marginTop: windowHeight * 0.015,
     },
     signUpButton: {
-        width: Dimensions.get('window').width - 70,
-        height: 50,
+        width: windowWidth - 70,
+        height: windowHeight * 0.06,
         borderRadius: 10,
         backgroundColor: Colors.PRIMARY,
         alignItems: 'center',
@@ -266,7 +289,7 @@ const styles = StyleSheet.create({
     signUpButtonText: {
         fontFamily: Fonts.bold,
         color: Colors.WHITE,
-        fontSize: 18,
+        fontSize: 0.02 * windowHeight,
     },
     loginDefaultText: {
         fontFamily: Fonts.regular,
@@ -276,8 +299,8 @@ const styles = StyleSheet.create({
         fontFamily: Fonts.bold,
     },
     loginButton: {
-        marginTop: 20,
+        marginVertical: 0.05 * windowHeight,
     },
 });
 
-export default DetailOrder;
+export default RegisterScreen

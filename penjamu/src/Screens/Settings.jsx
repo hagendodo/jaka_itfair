@@ -1,5 +1,5 @@
 import { SafeAreaView, TouchableOpacity, StyleSheet, Image, Text, View, Platform, Linking } from 'react-native'
-import React, { Component } from 'react'
+import React, { Component } from 'react';
 import Colors from '../Constants/Colors';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
@@ -13,7 +13,6 @@ import ProfileSettingsSheet from '../Components/Settings/ProfileSettingsSheet';
 import DocumentBottomSheet from '../Components/Settings/DocumentBottomSheet';
 import ContactUsBottomSheet from '../Components/Settings/ContactUsBottomSheet';
 import TermsPrivacyBottomSheet from '../Components/Settings/TermsPrivacyBottomSheet';
-import SwitchToggle from 'react-native-switch-toggle';
 import { PermissionsAndroid } from 'react-native';
 import { check, PERMISSIONS, request } from 'react-native-permissions';
 import ToggleSwitch from 'toggle-switch-react-native';

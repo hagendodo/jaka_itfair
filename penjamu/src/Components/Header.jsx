@@ -50,7 +50,6 @@ const Header = (props) => {
         if (isEnabled) {
             interval = setInterval(checkForNewOrder, 15000); // Check every 15 seconds
         } else {
-            // Clear the interval when the switch is disabled or component unmounts
             clearInterval(interval);
         }
 
