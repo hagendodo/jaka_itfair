@@ -10,7 +10,7 @@ const commonMiddleware = [
 ];
 
 orderRouter.get("/", orderController.getAllHistoryOrder);
-orderRouter.get("/:id", orderController.getAllHistoryOrder);
+orderRouter.get("/:id", orderController.getHistoryOrderById);
 orderRouter.post("/", orderController.createOrder);
 orderRouter.post("/accept", orderController.matchingOrderToPenjamu);
 orderRouter.get("/check/:id", orderController.checkOrderStatus);
