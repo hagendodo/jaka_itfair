@@ -45,7 +45,7 @@ const register = async (req, res) => {
 
 const logout = async (req, res) => {
   try {
-    const { data, error } = await authService.logout(req.token);
+    const { data, error } = await authService.logout(req.body.token);
 
     if (error) {
       throw new Error("Logout failed");
