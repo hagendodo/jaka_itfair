@@ -29,4 +29,9 @@ penjamuActivityRouter.post(
   penjamuActivityController.updatePositionPenjamu
 );
 
+penjamuActivityRouter.post(
+  "/arrived-order/:id",
+  penjamuActivityController.arrivedOrder
+);
+
 export { penjamuActivityRouter };

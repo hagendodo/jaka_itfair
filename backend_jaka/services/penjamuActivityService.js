@@ -47,9 +47,17 @@ const updatePositionPenjamu = async (data) => {
   });
 };
 
+const arrivedOrder = async (data) => {
+  return supabaseClient
+    .from("penjamu_activities")
+    .update({ status: "arrived" })
+    .eq("id", data.id);
+};
+
 export default {
   activatePenjamu,
   deactivatePenjamu,
   checkOrderPenjamu,
   updatePositionPenjamu,
+  arrivedOrder,
 };

@@ -90,9 +90,23 @@ const updatePositionPenjamu = async (req, res) => {
   }
 };
 
+const arrivedOrder = async (req, res) => {
+  try {
+    await penjamuActivityService.arrivedOrder(req.params);
+
+    return res
+      .status(200)
+      .send(responseType("Success arrived penjamu", null, false));
+  } catch (err) {
+    console.log(err);
+    return res.status(400).send(responseType(err.message, null, true));
+  }
+};
+
 export default {
   activatePenjamu,
   deactivatePenjamu,
   checkOrderPenjamu,
   updatePositionPenjamu,
+  arrivedOrder,
 };

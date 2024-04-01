@@ -9,7 +9,7 @@ const commonMiddleware = [basicMiddleware.verifyAccount];
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-productRouter.get("/", commonMiddleware, productController.getAllProduct);
+productRouter.get("/", productController.getAllProduct);
 productRouter.get("/:id", commonMiddleware, productController.getProductById);
 productRouter.post(
   "/",
