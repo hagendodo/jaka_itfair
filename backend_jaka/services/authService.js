@@ -4,6 +4,7 @@ import * as dotenv from "dotenv";
 import randomInteger from "random-int";
 import uploadHelper from "../helper/uploadHelper.js";
 import messageHelper from "../helper/messageHelper.js";
+import { v4 } from "uuid";
 dotenv.config();
 
 const login = async (x) => {
@@ -66,6 +67,7 @@ const login = async (x) => {
         id: user.id,
         type: x.type,
         status: "logged",
+        token: v4(),
       })
       .select("token");
 
