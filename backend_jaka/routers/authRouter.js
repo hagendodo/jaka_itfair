@@ -21,5 +21,8 @@ authRouter.post("/decline/:id", commonMiddleware, authController.decline);
 authRouter.post("/deactivate/:id", commonMiddleware, authController.deactivate);
 authRouter.post("/activate/:id", commonMiddleware, authController.activate);
 
+//resend OTP
+authRouter.post("/resend-otp", authController.resendOtp);
+
 //authRouter.post("/register", authController.register);
 export { authRouter };

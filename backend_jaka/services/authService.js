@@ -89,6 +89,7 @@ const login = async (x) => {
 const register = async (data, file = null) => {
   try {
     let err;
+    let derr;
 
     const hashedPassword = await hash(
       data.password,
@@ -117,6 +118,12 @@ const register = async (data, file = null) => {
         password: hashedPassword,
         otp: otp,
       });
+
+      derr = await supabaseClient
+        .from("penjamus")
+        .select()
+        .eq("nim", data.nim)
+        .single();
     }
 
     if (data.type === "merchant") {
@@ -138,10 +145,34 @@ const register = async (data, file = null) => {
       await messageHelper.sendOtpToWhatsapp(otp, data.phone);
     }
 
-    return error;
+    if (error) {
+      return error;
+    }
+
+    return {
+      id: derr.data.id,
+      phone: data.phone,
+      error: null,
+    };
   } catch (err) {
-    return err;
+    return {
+      error: err,
+    };
   }
+};
+
+const resendOtp = async (id) => {
+  const { data, error } = await supabaseClient
+    .from("penjamus")
+    .select("id, phone")
+    .eq("id", id)
+    .single();
+
+  await messageHelper.sendOtpToWhatsapp(data.otp, data.phone);
+  return {
+    error: null,
+    data: data,
+  };
 };
 
 const logout = async (token) => {
@@ -331,4 +362,5 @@ export default {
   deactivate,
   activate,
   checkVerify,
+  resendOtp,
 };
